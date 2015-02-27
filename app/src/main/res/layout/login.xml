@@ -1,0 +1,118 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="#6ca2a5"
+	    android:orientation="vertical">
+	
+	    <View
+	        android:layout_width="match_parent"
+	        android:layout_height="0dip"
+	        android:layout_weight="0.2" />
+	
+	    <ImageView
+	        android:id="@+id/titleImg"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="0.35"
+	        android:background="#ffffff"
+	        android:contentDescription="@string/app_name"
+	        android:src="@drawable/title" />
+	
+		<LinearLayout
+		    android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+		    android:layout_weight="0.45"
+		    android:orientation="vertical"
+		    android:padding="20dp">
+		    <EditText
+		        android:id="@+id/username"
+		        android:background="@drawable/ludicrus_edit_text"
+		        android:ems="10"
+		        android:gravity="center"
+		        android:hint="@string/username"
+		        android:imeOptions="actionNext"
+		        android:layout_gravity="center"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="15dp"
+		        android:layout_width="match_parent"
+		        android:padding="7dp"
+		        android:singleLine="true"
+		        android:textColor="#8a7f70"
+		        android:textColorHint="#8a7f70">
+		
+		        <requestFocus />
+		    </EditText>
+		    <EditText
+		        android:id="@+id/password"
+		        android:background="@drawable/ludicrus_edit_text"
+		        android:ellipsize="start"
+		        android:ems="10"
+		        android:gravity="center"
+		        android:hint="@string/password"
+		        android:imeOptions="actionDone"
+		        android:inputType="textPassword"
+		        android:layout_gravity="center"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="15dp"
+		        android:layout_width="match_parent"
+		        android:padding="7dp"
+		        android:singleLine="true"
+		        android:textColor="#8a7f70"
+		        android:textColorHint="#8a7f70"/>
+		    <Button
+		        android:id="@+id/login"
+		        android:background="@drawable/ludicrus_button"
+		        android:layout_gravity="center"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="15dp"
+		        android:layout_width="match_parent"
+		        android:onClick="login"
+		        android:padding="5dp"
+		        android:text="@string/sign_in" />
+		    <LinearLayout
+    			android:layout_height="match_parent"
+    			android:layout_marginTop="15dp"
+    			android:layout_width="match_parent"
+    			android:orientation="horizontal">
+		        <LinearLayout
+		            android:layout_height="match_parent"
+	    			android:layout_width="0dp"
+	    			android:layout_weight="1"
+	    			android:orientation="vertical">
+				    <com.facebook.widget.LoginButton
+				        xmlns:fb="http://schemas.android.com/apk/res-auto"
+				        android:id="@+id/fbLogin"
+				        android:layout_gravity="center_horizontal"
+				        android:layout_height="55dp"
+				        android:layout_width="55dp"
+				        fb:login_text=""
+				        fb:logout_text="" />
+			    </LinearLayout>
+			    <LinearLayout
+		            android:layout_height="match_parent"
+	    			android:layout_width="0dp"
+	    			android:layout_weight="1"
+	    			android:orientation="vertical">
+				    <Button
+				        android:id="@+id/skipLogin"
+				        android:background="@drawable/ludicrus_button"
+				        android:layout_gravity="center_horizontal"
+				        android:layout_height="wrap_content"
+				        android:layout_width="wrap_content"
+				        android:onClick="skipLogin"
+				        android:text="@string/skip" />
+			    </LinearLayout>
+		    </LinearLayout>
+		</LinearLayout>
+	</LinearLayout>
+	<ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        style="@android:style/Widget.ProgressBar.Large" />
+</RelativeLayout>

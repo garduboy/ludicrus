@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:paddingTop="10dp"
+    android:paddingLeft="10dp"
+    android:paddingBottom="10dp"
+    android:paddingRight="10dp">
+
+    <ImageView
+        android:id="@+id/homeTeamLogo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/home_team" />
+
+    <ImageView
+        android:id="@+id/awayTeamLogo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/homeTeamLogo"
+        android:paddingTop="2dp"
+        android:contentDescription="@string/away_team" />
+
+    <TextView
+        android:id="@+id/homeTeam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/homeTeamLogo"
+        android:layout_alignTop="@+id/homeTeamLogo"
+        android:gravity="center_vertical"
+        android:layout_alignLeft="@+id/visitorTeam"
+        android:paddingLeft="2dp"
+        android:text="@string/home_team"
+        android:textIsSelectable="false" />
+
+    <TextView
+        android:id="@+id/visitorTeam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/awayTeamLogo"
+        android:layout_alignTop="@+id/awayTeamLogo"
+        android:gravity="center_vertical"
+        android:layout_toRightOf="@+id/awayTeamLogo"
+        android:paddingLeft="2dp"
+        android:text="@string/away_team"
+        android:textIsSelectable="false" />
+    
+    <TextView
+        android:id="@+id/homeScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/homeTeamLogo"
+        android:layout_alignTop="@+id/homeTeamLogo"
+        android:gravity="center_vertical"
+        android:layout_alignParentRight="true"
+        android:text="@string/zero"
+        android:textIsSelectable="false" />
+    
+    <TextView
+        android:id="@+id/visitorScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/awayTeamLogo"
+        android:layout_alignTop="@+id/awayTeamLogo"
+        android:gravity="center_vertical"
+        android:layout_alignParentRight="true"
+        android:text="@string/zero"
+        android:textIsSelectable="false" />
+    
+    <TextView
+        android:id="@+id/matchFinished"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/homeTeam"
+        android:layout_alignBottom="@+id/visitorTeam"
+        android:gravity="center_vertical"
+        android:layout_toLeftOf="@+id/homeScore"
+        android:layout_marginRight="10dp"
+        android:text="@string/finished"
+        android:textIsSelectable="false" />
+
+</RelativeLayout>

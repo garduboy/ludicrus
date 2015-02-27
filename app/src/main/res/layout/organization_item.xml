@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="10dp"
+    android:paddingLeft="10dp"
+    android:paddingBottom="10dp"
+    android:paddingRight="10dp">
+    
+    <ImageView
+        android:id="@+id/organizationLogo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/organization" />
+    
+    <TextView
+        android:id="@+id/organization"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/organizationLogo"
+        android:layout_alignTop="@+id/organizationLogo"
+        android:gravity="center_vertical"
+       	android:layout_toRightOf="@+id/organizationLogo"
+        android:paddingLeft="2dp"
+        android:text="@string/organization"
+        android:textIsSelectable="false" />
+    
+    <ImageView
+        android:id="@+id/favTeam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:gravity="center_vertical"
+        android:src="@drawable/star_empty"
+        android:visibility="gone" />
+    
+</RelativeLayout>
+    

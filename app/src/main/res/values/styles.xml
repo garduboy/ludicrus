@@ -1,0 +1,61 @@
+<resources>
+    <style name="NoTitleBar">
+        <item name="android:windowNoTitle">true</item>
+        <!--
+        <item name="android:windowTitleSize">0dp</item>
+        -->
+    </style>
+
+    <style name="FullscreenTheme" parent="android:Theme.Holo.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="buttonBarStyle">@style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@style/ButtonBarButton</item>
+    </style>
+    
+    <style name="ButtonBar">
+            <item name="android:paddingLeft">2dp</item>
+            <item name="android:paddingTop">5dp</item>
+            <item name="android:paddingRight">2dp</item>
+            <item name="android:paddingBottom">0dp</item>
+            <item name="android:background">@android:drawable/bottom_bar</item>
+        </style>
+        
+        <style name="CustomTitlePageIndicator">
+            <item name="android:background">#18FF0000</item>
+            <item name="footerColor">#FFAA2222</item>
+            <item name="footerLineHeight">1dp</item>
+            <item name="footerIndicatorHeight">3dp</item>
+            <item name="footerIndicatorStyle">underline</item>
+            <item name="android:textColor">#AA000000</item>
+            <item name="selectedColor">#FF000000</item>
+            <item name="selectedBold">true</item>
+        </style>
+    
+        <style name="ButtonBarButton" />
+        
+        <style name="EditEventCustomActionButton" parent="android:style/Widget.Holo.Light.ActionButton">
+            <item name="android:layout_height">match_parent</item>
+            <item name="android:layout_width">0dp</item>
+            <item name="android:layout_weight">1</item>
+            <item name="android:focusable">true</item>
+            <item name="android:orientation">horizontal</item>
+        </style>
+        <style name="EditEventCustomActionButtonImage">
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:layout_width">wrap_content</item>
+            <item name="android:padding">4dp</item>
+        </style>
+        <style name="EditEventCustomActionButtonText">
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:layout_width">wrap_content</item>
+            <item name="android:textAppearance">?android:attr/actionMenuTextAppearance</item>
+            <item name="android:textColor">?android:attr/actionMenuTextColor</item>
+            <item name="android:orientation">horizontal</item>
+            <item name="android:singleLine">true</item>
+            <item name="android:ellipsize">none</item>
+            <item name="android:padding">4dp</item>
+    </style>
+
+</resources>
