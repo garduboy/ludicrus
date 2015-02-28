@@ -44,19 +44,27 @@ public class MatchAdapter extends BaseAdapter
     private LayoutInflater mInflater;
     private BitmapFactory.Options mOptions;
     private Typeface mTypeface;
+    private Typeface mScoreTypeface;
     
-	public MatchAdapter(LayoutInflater inflater, Typeface typeface)
+	public MatchAdapter(LayoutInflater inflater)
 	{
 		mInflater = inflater;
-		//Passing type face instead of activity while we only use one type face.
-		mTypeface = typeface;
-		mOptions = new BitmapFactory.Options();
+
+        mOptions = new BitmapFactory.Options();
 		mOptions.inMutable = true;
 	}
 	
 	public void addItem(final IMatch item) {
         mData.add(item);
         notifyDataSetChanged();
+    }
+
+    public void setmTypeface(Typeface mTypeface) {
+        this.mTypeface = mTypeface;
+    }
+
+    public void setmScoreTypeface(Typeface mScoreTypeface) {
+        this.mScoreTypeface = mScoreTypeface;
     }
 
 	public void clear()
@@ -123,7 +131,9 @@ public class MatchAdapter extends BaseAdapter
                     holder.homeTeamLogo = (ImageView)convertView.findViewById(R.id.homeTeamLogo);
                     holder.awayTeamLogo = (ImageView)convertView.findViewById(R.id.awayTeamLogo);
                     holder.homeScore = (TextView)convertView.findViewById(R.id.homeScore);
+                    holder.homeScore.setTypeface(mScoreTypeface);
                     holder.visitorScore = (TextView)convertView.findViewById(R.id.visitorScore);
+                    holder.visitorScore.setTypeface(mScoreTypeface);
                     holder.matchInfo = (TextView)convertView.findViewById(R.id.matchFinished);
                 	break;
 //                case TYPE_SEPARATOR:
@@ -194,11 +204,20 @@ public class MatchAdapter extends BaseAdapter
         }
         else
         {
-        	holder.homeScore.setText(mData.get(position).getHomeScore().toString());
-        	holder.visitorScore.setText(mData.get(position).getAwayScore().toString());
+            Integer homeScore = mData.get(position).getHomeScore();
+            Integer awayScore = mData.get(position).getAwayScore();
+        	holder.homeScore.setText(homeScore.toString());
+        	holder.visitorScore.setText(awayScore.toString());
 //        	if(type == IMatch.TYPE_FINISHED || type == IMatch.TYPE_LIVE || type == IMatch.TYPE_HALF_TIME || type == IMatch.TYPE_STARTED)
-        	if(type == IMatch.TYPE_STARTED || type == IMatch.TYPE_HALF_TIME || type == IMatch.TYPE_LIVE)
-        		holder.matchInfo.setText(mData.get(position).getTime());
+        	if(type == IMatch.TYPE_STARTED || type == IMatch.TYPE_HALF_TIME || type == IMatch.TYPE_LIVE) {
+                holder.matchInfo.setText(mData.get(position).getTime());
+            } else if (type == IMatch.TYPE_FINISHED) {
+                if(homeScore > awayScore) {
+                    convertView.setBackgroundResource(R.drawable.home_victory_row);
+                } else if(awayScore > homeScore) {
+                    convertView.setBackgroundResource(R.drawable.away_victory_row);
+                }
+            }
         }
         return convertView;
 	}

@@ -85,8 +85,12 @@ public class ScoresFragment extends Fragment
 	        
 	        mListView = new ListView(getActivity());
 	        mListView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+            mListView.setDividerHeight(5);
 	        Typeface quickTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Quicksand-Regular.ttf");
-	        mMatchAdapter = new MatchAdapter((LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE), quickTypeFace);
+            Typeface lobsterTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/LobsterTwo-Regular.ttf");
+	        mMatchAdapter = new MatchAdapter((LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+            mMatchAdapter.setmTypeface(quickTypeFace);
+            mMatchAdapter.setmScoreTypeface(lobsterTypeFace);
 	        
 	        showProgress();
 	        loadAdapter();
@@ -108,7 +112,10 @@ public class ScoresFragment extends Fragment
 	        if(activity == null)
 	        	return;
 	        Typeface quickTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Quicksand-Regular.ttf");
-	        mMatchAdapter = new MatchAdapter((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE), quickTypeFace);
+            Typeface lobsterTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/LobsterTwo-Regular.ttf");
+	        mMatchAdapter = new MatchAdapter((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+            mMatchAdapter.setmTypeface(quickTypeFace);
+            mMatchAdapter.setmScoreTypeface(lobsterTypeFace);
 	        
 	        for(int i = 0; i < matchList.size(); i++)
 	        {

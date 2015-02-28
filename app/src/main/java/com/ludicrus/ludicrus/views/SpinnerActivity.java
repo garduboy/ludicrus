@@ -14,6 +14,8 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar.OnNavigationListener;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -25,6 +27,7 @@ import com.ludicrus.ludicrus.helpers.RestClientHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.ludicrus.parcelable.UserMobile;
 import com.ludicrus.ludicrus.util.ExpandableListAdapter;
+import com.ludicrus.ludicrus.util.TypefaceSpan;
 import com.ludicrus.ludicrus.views.profile.ProfileFragment;
 
 abstract public class SpinnerActivity extends BaseActivity implements EventListener {
@@ -77,7 +80,6 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle("Open Drawer");
                 
                 SportifiedApp sportApp = (SportifiedApp)getApplicationContext();
                 UserMobile user = sportApp.getUser();
@@ -98,6 +100,7 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 	    //Should be add, let's find out where do we need to remove it when the configuration changes
 	    ft.replace(R.id.mainContent, scores, mTitle.toString());
 	    ft.commit();
+        setTitle(mTitle);
 		
 		//Set up drop-down navigation
 //  		SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list,
@@ -202,7 +205,10 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 	@Override
 	public void setTitle(CharSequence title) {
 		mTitle = title;
-		getSupportActionBar().setTitle(mTitle);
+        SpannableString s = new SpannableString(mTitle);
+        s.setSpan(new TypefaceSpan(this, "LobsterTwo-Regular.ttf"), 0, s.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		getSupportActionBar().setTitle(s);
 	}
 	
 	/** Swaps fragments in the main content view */

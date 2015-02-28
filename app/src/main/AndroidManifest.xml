@@ -25,17 +25,19 @@
             android:theme="@style/NoTitleBar" >
         </activity>
         <activity
+            android:label="@string/title_activity_scores"
             android:name="com.ludicrus.ludicrus.views.MainActivity"
-            android:label="@string/title_activity_scores">
+            android:theme="@style/LudicrusActionBarLightTheme">
         </activity>
         <activity
+            android:label="@string/title_activity_addFavTeams"
             android:name="com.ludicrus.ludicrus.views.profile.AddFavoriteTeamActivity"
-            android:label="@string/title_activity_addFavTeams" >
+            android:theme="@style/LudicrusActionBarLightTheme">
         </activity>
         <activity
-            android:name="com.ludicrus.ludicrus.views.SettingsActivity"
             android:excludeFromRecents="true"
-            android:label="@string/settings">
+            android:label="@string/settings"
+            android:name="com.ludicrus.ludicrus.views.SettingsActivity">
         </activity>
         <activity
             android:name="com.ludicrus.ludicrus.SplashScreen"

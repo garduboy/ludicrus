@@ -11,6 +11,7 @@
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="final_caps">FINAL</string>
     <string name="finished">Finished</string>
     <string name="hello_world">Hello world!</string>
     <string name="home_team">Home Team</string>
@@ -22,6 +23,7 @@
     <string name="pref_logout">Logout</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="username">username</string>
+    <string name="score_delimiter">-</string>
     <string name="settings">Settings</string>
     <string name="sign_in">Sign in</string>
     <string name="skip">Skip</string>

@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -216,7 +217,9 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
         
         //Bind the title indicator to the adapter
         mTitleIndicator = (TitlePageIndicator)getView().findViewById(R.id.titles);
-        
+
+        Typeface quickTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Quicksand-Regular.ttf");
+        mTitleIndicator.setTypeface(quickTypeFace);
         mTitleIndicator.setOnPageChangeListener(new ScoresChangeListener(this));
 		
         mPager.setAdapter(mPagerAdapter);

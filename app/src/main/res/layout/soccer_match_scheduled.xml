@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:background="@color/row"
     android:layout_height="wrap_content"
-    android:paddingTop="5dp"
-    android:paddingLeft="5dp"
+    android:layout_width="match_parent"
     android:paddingBottom="5dp"
-    android:paddingRight="5dp">
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:paddingTop="5dp">
 
     <ImageView
         android:id="@+id/homeTeamLogo"
@@ -33,7 +34,6 @@
         android:layout_toRightOf="@+id/homeTeamLogo"
         android:layout_toEndOf="@+id/homeTeamLogo"
         android:paddingLeft="2dp"
-        android:paddingStart="2dp"
         android:text="@string/home_team"
         android:textIsSelectable="false" />
 
@@ -70,6 +70,6 @@
     
     <View
         android:layout_width="match_parent"
-        android:layout_height="80dp"/>
+        android:layout_height="80dp" />
 
 </RelativeLayout>

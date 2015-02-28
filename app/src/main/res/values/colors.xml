@@ -1,5 +1,9 @@
 <resources>
-
+    <color name="background_alt">#ff8a7f70</color>
+    <color name="background_main">#ff6ca2a5</color>
     <color name="black_overlay">#66000000</color>
+    <color name="font">#043958</color>
+    <color name="highlight">#ffefb728</color>
+    <color name="row">#f1ecdf</color>
 
 </resources>

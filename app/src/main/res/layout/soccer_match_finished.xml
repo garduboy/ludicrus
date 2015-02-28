@@ -1,85 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/row"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:paddingTop="10dp"
-    android:paddingLeft="10dp"
-    android:paddingBottom="10dp"
-    android:paddingRight="10dp">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="5dp"
+    android:paddingLeft="5dp"
+    android:paddingBottom="5dp"
+    android:paddingRight="5dp">
 
-    <ImageView
-        android:id="@+id/homeTeamLogo"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/home_team" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true">
 
-    <ImageView
-        android:id="@+id/awayTeamLogo"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/homeTeamLogo"
-        android:paddingTop="2dp"
-        android:contentDescription="@string/away_team" />
+        <ImageView
+            android:id="@+id/homeTeamLogo"
+            android:layout_gravity="center_vertical"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:contentDescription="@string/home_team" />
 
-    <TextView
-        android:id="@+id/homeTeam"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/homeTeamLogo"
-        android:layout_alignTop="@+id/homeTeamLogo"
-        android:gravity="center_vertical"
-        android:layout_alignLeft="@+id/visitorTeam"
-        android:paddingLeft="2dp"
-        android:text="@string/home_team"
-        android:textIsSelectable="false" />
+        <TextView
+            android:id="@+id/homeTeam"
+            android:layout_width="0dp"
+            android:layout_weight=".34"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="2dp"
+            android:paddingStart="2dp"
+            android:text="@string/home_team"
+            android:textIsSelectable="false" />
 
-    <TextView
-        android:id="@+id/visitorTeam"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/awayTeamLogo"
-        android:layout_alignTop="@+id/awayTeamLogo"
-        android:gravity="center_vertical"
-        android:layout_toRightOf="@+id/awayTeamLogo"
-        android:paddingLeft="2dp"
-        android:text="@string/away_team"
-        android:textIsSelectable="false" />
-    
-    <TextView
-        android:id="@+id/homeScore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/homeTeamLogo"
-        android:layout_alignTop="@+id/homeTeamLogo"
-        android:gravity="center_vertical"
-        android:layout_alignParentRight="true"
-        android:text="@string/zero"
-        android:textIsSelectable="false" />
-    
-    <TextView
-        android:id="@+id/visitorScore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/awayTeamLogo"
-        android:layout_alignTop="@+id/awayTeamLogo"
-        android:gravity="center_vertical"
-        android:layout_alignParentRight="true"
-        android:text="@string/zero"
-        android:textIsSelectable="false" />
-    
+        <LinearLayout
+            android:background="@drawable/scores_layout_bg"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight=".25">
+
+            <TextView
+                android:id="@+id/homeScore"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/zero"
+                android:textAppearance="@style/BlueText"
+                android:textIsSelectable="false"/>
+
+            <TextView
+                android:id="@+id/scoreDelimiter"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:text="@string/score_delimiter"
+                android:textAppearance="@style/BlueText"/>
+
+            <TextView
+                android:id="@+id/visitorScore"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/zero"
+                android:textAppearance="@style/BlueText"
+                android:textIsSelectable="false" />
+
+        </LinearLayout>
+
+
+
+        <TextView
+            android:id="@+id/visitorTeam"
+            android:gravity="end"
+            android:layout_gravity="center_vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".34"
+            android:paddingRight="2dp"
+            android:paddingEnd="2dp"
+            android:text="@string/away_team"
+            android:textIsSelectable="false" />
+
+        <ImageView
+            android:id="@+id/awayTeamLogo"
+            android:layout_gravity="center_vertical"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:contentDescription="@string/away_team" />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/matchFinished"
-        android:layout_width="wrap_content"
+        android:background="@drawable/score_text_box"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/homeTeam"
-        android:layout_alignBottom="@+id/visitorTeam"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
         android:gravity="center_vertical"
-        android:layout_toLeftOf="@+id/homeScore"
-        android:layout_marginRight="10dp"
-        android:text="@string/finished"
-        android:textIsSelectable="false" />
+        android:text="@string/final_caps"
+        android:textAppearance="@style/WhiteText"
+        android:textIsSelectable="false"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
 </RelativeLayout>
