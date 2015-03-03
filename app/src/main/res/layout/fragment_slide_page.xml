@@ -3,8 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#6ca2a5">
+    android:layout_height="match_parent">
     
     <ProgressBar
          android:id="@+id/loadingFragment"

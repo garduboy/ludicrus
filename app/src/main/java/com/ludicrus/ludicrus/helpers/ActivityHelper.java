@@ -3,6 +3,7 @@ package com.ludicrus.ludicrus.helpers;
 import android.content.Context;
 import android.content.Intent;
 
+import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.login.Login;
 import com.ludicrus.ludicrus.views.MainActivity;
 import com.ludicrus.ludicrus.views.SettingsActivity;
@@ -11,6 +12,14 @@ import com.ludicrus.ludicrus.views.profile.SelectTeamActivity;
 
 public class ActivityHelper
 {
+    public static int getActionBarTheme() {
+        return R.style.LudicrusActionBarDarkTheme;
+    }
+
+    public static int getAppTheme() {
+        return R.style.LudicrusLightTheme;
+    }
+
 	public static final Intent startLoginActivity(Context context)
 	{
 		try

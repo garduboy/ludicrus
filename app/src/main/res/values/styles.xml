@@ -66,11 +66,28 @@
         <item name="android:padding">4dp</item>
     </style>
 
+    <style name="LudicrusActionBarDarkTheme"
+        parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/MyActionBarDark</item>
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/MyActionBarDark</item>
+    </style>
+
     <style name="LudicrusActionBarLightTheme"
         parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/MyActionBar</item>
         <!-- Support library compatibility -->
         <item name="actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <style name="LudicrusLightTheme"
+        parent="Theme.AppCompat.Light">
+        <item name="android:background">@color/background_main</item>
+    </style>
+
+    <style name="LudicrusDarkTheme"
+        parent="Theme.AppCompat.Light">
+        <item name="android:background">@color/background_main_dark</item>
     </style>
 
     <!-- ActionBar styles -->
@@ -83,10 +100,19 @@
         <item name="background">@color/background_main</item>
     </style>
 
+    <style name="MyActionBarDark"
+        parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/background_main_dark</item>
+        <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
+
+        <!-- Support library compatibility -->
+        <item name="background">@color/background_main_dark</item>
+    </style>
+
     <!-- ActionBar title text -->
     <style name="MyActionBarTitleText"
         parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">#ffffff</item>
+        <item name="android:textColor">@color/text_font</item>
     </style>
 
     <!-- White Text -->
@@ -96,4 +122,5 @@
         <item name="android:textSize">14dp</item>
     </style>
 
+    <!--App Themes-->
 </resources>

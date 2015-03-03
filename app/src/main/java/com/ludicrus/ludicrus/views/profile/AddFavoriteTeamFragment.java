@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.ActionMode;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +34,7 @@ import android.widget.TextView;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.classes.AndroidOrganization;
+import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.helpers.RestClientHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.core.model.interfaces.IOrganization;
@@ -57,7 +59,19 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 	private View loadingPanel;
 	
 	final EventListener listener = this;
-	
+
+    View.OnClickListener favTeamsHomeListener = new View.OnClickListener() {
+        public void onClick(View v)
+        {
+            displayConfederations(v);
+        }
+    };
+    View.OnClickListener confederationListener = new View.OnClickListener() {
+        public void onClick(View v)
+        {
+            displayFederations(v);
+        }
+    };
 	View.OnClickListener cancelListener = new View.OnClickListener() {
 		public void onClick(View v)
 		{
@@ -140,13 +154,24 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-	{	
-        return inflater.inflate(R.layout.add_fav_team, container, false);
+	{
+        // create ContextThemeWrapper from the original Activity Context with the custom theme
+        final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), ActivityHelper.getAppTheme());
+
+        // clone the inflater using the ContextThemeWrapper
+        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
+
+        return localInflater.inflate(R.layout.add_fav_team, container, false);
 	}
 	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
+        Button favTeamsHome = (Button) getActivity().findViewById(R.id.favTeamsHome);
+        favTeamsHome.setOnClickListener(favTeamsHomeListener);
+        Button confederation = (Button) getActivity().findViewById(R.id.confederation);
+        confederation.setOnClickListener(confederationListener);
+
 		//Setting the adapter dynamically
         RestClientHelper.getConfederationList(this);
         

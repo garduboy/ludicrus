@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape>
+            <gradient
+                android:angle="180"
+                android:centerColor="@color/row_alpha"
+                android:startColor="@color/highlight_alpha"
+                android:endColor="@color/row_alpha"
+                android:type="linear" />
+        </shape>
+    </item>
     <item>
         <shape>
             <gradient

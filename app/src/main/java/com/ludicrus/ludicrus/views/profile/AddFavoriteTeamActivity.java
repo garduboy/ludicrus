@@ -15,19 +15,10 @@ public class AddFavoriteTeamActivity extends ActionBarActivity {
 	
 	private AddFavoriteTeamFragment profile;
 	
-	public void displayConfederations(View view)
-	{
-		profile.displayConfederations(view);
-	}
-	
-	public void displayFederations(View view)
-	{
-		profile.displayFederations(view);
-	}
-	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.setTheme(ActivityHelper.getActionBarTheme());
         setContentView(R.layout.aux_activity);
         
         getSupportActionBar().setDisplayUseLogoEnabled(false);

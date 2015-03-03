@@ -26,13 +26,11 @@
         </activity>
         <activity
             android:label="@string/title_activity_scores"
-            android:name="com.ludicrus.ludicrus.views.MainActivity"
-            android:theme="@style/LudicrusActionBarLightTheme">
+            android:name="com.ludicrus.ludicrus.views.MainActivity">
         </activity>
         <activity
             android:label="@string/title_activity_addFavTeams"
-            android:name="com.ludicrus.ludicrus.views.profile.AddFavoriteTeamActivity"
-            android:theme="@style/LudicrusActionBarLightTheme">
+            android:name="com.ludicrus.ludicrus.views.profile.AddFavoriteTeamActivity">
         </activity>
         <activity
             android:excludeFromRecents="true"

@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.DateFormat;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.core.model.interfaces.IMatch;
+import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.util.MatchAdapter;
 
 public class ScoresFragment extends Fragment
@@ -66,7 +68,13 @@ public class ScoresFragment extends Fragment
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(
+        // create ContextThemeWrapper from the original Activity Context with the custom theme
+        final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), ActivityHelper.getAppTheme());
+
+        // clone the inflater using the ContextThemeWrapper
+        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
+
+        ViewGroup rootView = (ViewGroup) localInflater.inflate(
                 R.layout.fragment_slide_page, container, false);
 
         if(position > 0 && position < 4)

@@ -50,7 +50,7 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+        this.setTheme(ActivityHelper.getActionBarTheme());
         SportifiedApp sportApp = (SportifiedApp)getApplicationContext();
         UserMobile user = sportApp.getUser();
         //Setting the adapter dynamically
