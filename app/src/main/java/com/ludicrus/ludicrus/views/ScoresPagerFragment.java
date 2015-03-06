@@ -523,6 +523,20 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     	{
     		e.printStackTrace();
     	}
+
+    }
+
+    public void toggleFavorites()
+    {
+        try
+        {
+            for(int i = PAGE_LEFT; i <= PAGE_RIGHT; i++) {
+                mPageModel[i].toggleFavorites();
+            }
+        } catch (Exception e)
+        {
+
+        }
     }
     
     /**

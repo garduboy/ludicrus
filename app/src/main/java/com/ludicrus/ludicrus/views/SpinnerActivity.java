@@ -2,26 +2,31 @@ package com.ludicrus.ludicrus.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar.OnNavigationListener;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
 
+import com.ludicrus.core.model.interfaces.IOrganization;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
+import com.ludicrus.ludicrus.classes.AndroidOrganization;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.helpers.RestClientHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
@@ -66,7 +71,6 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
                 mDrawerLayout,         /* DrawerLayout object */
-                R.drawable.ic_drawer,  /* nav drawer icon to replace 'Up' caret */
                 R.string.app_name,  /* "open drawer" description */
                 R.string.title_activity_user_home  /* "close drawer" description */
                 ) {
@@ -147,21 +151,22 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 			String[] navItems = getResources().getStringArray(R.array.action_list);
 			ArrayList<String> headers = new ArrayList<String>();
 			HashMap<String, List<String>> listDataChild = new HashMap<String, List<String>>();
-			
+
+            ArrayList<IOrganization> favTeams = loadFavoriteTeams((JSONArray)result.get("favTeams"));
+
 			for(int i = 0; i < navItems.length; i++)
 			{
 				String navItem = navItems[i];
 				List<String> subItems = new ArrayList<String>();
 				if(navItem.equals(getString(R.string.title_activity_myTeams)))
 				{
-					JSONArray items = (JSONArray)result.get("favTeams");
-					if(items.length() > 0)
+					if(favTeams.size() > 0)
 						subItems = new ArrayList<String>();
 					
-					for(int j = 0; j < items.length(); j++)
+					for(int j = 0; j < favTeams.size(); j++)
 					{
-						JSONObject obj = (JSONObject)items.get(j);
-						subItems.add((String)obj.get("name"));
+						IOrganization org = (IOrganization)favTeams.get(j);
+						subItems.add(org.getName());
 					}
 				}
 				headers.add(navItem);
@@ -195,7 +200,26 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 			e.printStackTrace();
 		}
 	}
-	 
+
+    private ArrayList<IOrganization> loadFavoriteTeams(JSONArray teams)
+    {
+        try {
+            ArrayList<IOrganization> favTeams = new ArrayList<IOrganization>();
+            JSONArray items = teams;
+            Set<String> teamIds = new HashSet<String>();
+            for (int i = 0; i < items.length(); i++) {
+                IOrganization fav = new AndroidOrganization((JSONObject) items.get(i));
+                favTeams.add(fav);
+                teamIds.add(fav.getIdOrganization().toString());
+            }
+            storeFavoriteTeams(teamIds);
+            return favTeams;
+        } catch (Exception e)
+        {
+            return null;
+        }
+    }
+
 	public void setJSONObject(JSONObject json)
     {
 		result = json;
@@ -249,4 +273,17 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 	    setTitle(strings[groupPosition]);
 	    mDrawerLayout.closeDrawer(mDrawerList);
 	}
+
+    private void storeFavoriteTeams(Set<String> favTeams)
+    {
+        try {
+            SharedPreferences settings = getSharedPreferences(SportifiedApp.PREFS_NAME, MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putStringSet(SportifiedApp.PREFS_FAVORITE_TEAMS, favTeams);
+            editor.commit();
+        } catch (Exception e)
+        {
+
+        }
+    }
 }

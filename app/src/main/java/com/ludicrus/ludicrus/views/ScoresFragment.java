@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Context;
@@ -23,6 +24,8 @@ import android.widget.TextView;
 
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.core.model.interfaces.IMatch;
+import com.ludicrus.ludicrus.SportifiedApp;
+import com.ludicrus.ludicrus.classes.AndroidSoccerMatch;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.util.MatchAdapter;
 
@@ -112,33 +115,63 @@ public class ScoresFragment extends Fragment
 	{
 		try
 		{
-			String pageDate = DateFormat.format("yyyy-MM-dd", this.date).toString();
-	        List<IMatch> matchList = ScoresPagerFragment.matchList.get(pageDate);
-	        if(matchList == null)
-	        	return;
-	        FragmentActivity activity = (FragmentActivity)getActivity();
-	        if(activity == null)
-	        	return;
-	        Typeface quickTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Quicksand-Regular.ttf");
-            Typeface lobsterTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/LobsterTwo-Regular.ttf");
-	        mMatchAdapter = new MatchAdapter((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
-            mMatchAdapter.setmTypeface(quickTypeFace);
-            mMatchAdapter.setmScoreTypeface(lobsterTypeFace);
-	        
-	        for(int i = 0; i < matchList.size(); i++)
-	        {
-	        	IMatch match = matchList.get(i);
-	        	if(pageDate.equals(match.getDate()))
-	        		mMatchAdapter.addItem(match);
-	        }
-	        setAdapter();
+            if(loadMatches())
+            {
+                setAdapter();
+            }
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
-	
+
+    private boolean loadMatches() {
+        boolean matchesLoaded = false;
+        try {
+            String pageDate = DateFormat.format("yyyy-MM-dd", this.date).toString();
+            List<IMatch> matchList = ScoresPagerFragment.matchList.get(pageDate);
+            if(matchList == null)
+                return false;
+            FragmentActivity activity = (FragmentActivity)getActivity();
+            if(activity == null)
+                return false;
+
+            Typeface quickTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Quicksand-Regular.ttf");
+            Typeface lobsterTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/LobsterTwo-Regular.ttf");
+            mMatchAdapter = new MatchAdapter((LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+            mMatchAdapter.setmTypeface(quickTypeFace);
+            mMatchAdapter.setmScoreTypeface(lobsterTypeFace);
+
+            SharedPreferences settings = getActivity().getSharedPreferences(SportifiedApp.PREFS_NAME, Context.MODE_PRIVATE);
+            boolean displayFavorites = settings.getBoolean(SportifiedApp.PREFS_DISPLAY_FAVORITES, true);
+
+            for (int i = 0; i < matchList.size(); i++) {
+                IMatch match = matchList.get(i);
+                if (pageDate.equals(match.getDate()))
+                    if(displayFavorites)
+                    {
+                        //TODO create sports enumeration and change value in Core/SoccerMatch
+                        if(match.getSport().equals("soccer"))
+                        {
+                            AndroidSoccerMatch soccerMatch = (AndroidSoccerMatch)match;
+                            if(soccerMatch.isHomeTeamFavorite(settings) || soccerMatch.isAwayTeamFavorite(settings))
+                            {
+                                mMatchAdapter.addItem(match);
+                            }
+                        }
+                    } else
+                    {
+                        mMatchAdapter.addItem(match);
+                    }
+            }
+            matchesLoaded = true;
+        } catch (Exception e) {
+            matchesLoaded = false;
+        }
+        return matchesLoaded;
+    }
+
 	@Override
 	public void onAttach(Activity activity)
 	{
@@ -218,4 +251,9 @@ public class ScoresFragment extends Fragment
 			showProgress();
 		}
 	}
+
+    public void toggleFavorites()
+    {
+        loadAdapter();
+    }
 }

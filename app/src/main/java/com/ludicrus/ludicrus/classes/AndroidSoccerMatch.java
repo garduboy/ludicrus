@@ -1,9 +1,15 @@
 package com.ludicrus.ludicrus.classes;
 
+import android.content.SharedPreferences;
+
 import com.ludicrus.core.classes.SoccerMatch;
+import com.ludicrus.ludicrus.SportifiedApp;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class AndroidSoccerMatch extends SoccerMatch
 {
@@ -13,7 +19,9 @@ public class AndroidSoccerMatch extends SoccerMatch
 	{
 		this.tournamentName = (json.has("tournamentName")? json.getString("tournamentName"):"");
 		this.homeTeamName = (json.has("homeTeamName")? json.getString("homeTeamName"):"");
+        this.homeTeamId = (json.has("homeTeamId")? Integer.parseInt(json.getString("homeTeamId")):0);
 		this.awayTeamName = (json.has("awayTeamName")? json.getString("awayTeamName"):"");
+        this.awayTeamId = (json.has("awayTeamId")? Integer.parseInt(json.getString("awayTeamId")):0);
 		this.homeTeamLogo = (json.has("homeTeamLogo")? json.getString("homeTeamLogo"):"");
 		this.awayTeamLogo = (json.has("awayTeamLogo")? json.getString("awayTeamLogo"):"");
 		this.homeScore = (json.has("homeScore") && !json.isNull("homeScore")? json.getInt("homeScore"):0);
@@ -26,4 +34,40 @@ public class AndroidSoccerMatch extends SoccerMatch
 		this.stadiumName = (json.has("stadiumName")? json.getString("stadiumName"):"");
 		this.type = (json.has("type")? json.getInt("type"):0);
 	}
+
+    public boolean isHomeTeamFavorite(SharedPreferences preferences)
+    {
+        boolean isFavTeam = false;
+        try {
+            SharedPreferences settings = preferences;
+            Set<String> favTeams = settings.getStringSet(SportifiedApp.PREFS_FAVORITE_TEAMS, new HashSet<String>());
+
+            if (favTeams.contains(this.homeTeamId.toString())) {
+                isFavTeam = true;
+            }
+            return isFavTeam;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    public boolean isAwayTeamFavorite(SharedPreferences preferences)
+    {
+        boolean isFavTeam = false;
+        try {
+            SharedPreferences settings = preferences;
+            Set<String> favTeams = settings.getStringSet(SportifiedApp.PREFS_FAVORITE_TEAMS, new HashSet<String>());
+
+            if (favTeams.contains(this.awayTeamId.toString())) {
+                isFavTeam = true;
+            }
+            return isFavTeam;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
 }
