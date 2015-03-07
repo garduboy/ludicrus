@@ -1,6 +1,7 @@
 <resources>
     <color name="background_alt">#ff8a7f70</color>
-    <color name="background_main">#cc6ca2a5</color>
+    <color name="background_main">#ff6ca2a5</color>
+    <color name="background_main_alpha">#dd6ca2a5</color>
     <color name="black_overlay">#66000000</color>
     <color name="font">#ff043958</color>
     <color name="highlight">#ffefb728</color>
@@ -9,6 +10,7 @@
     <color name="row_alpha">#aaf1ecdf</color>
     <color name="text_font">#ffffffff</color>
 
-    <color name="background_main_dark">#cc043958</color>
+    <color name="background_main_dark_alpha">#dd043958</color>
+    <color name="background_main_dark">#ff043958</color>
 
 </resources>

@@ -17,10 +17,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ExpandableListView;
 
 import com.ludicrus.core.model.interfaces.IOrganization;
@@ -55,15 +57,18 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setTheme(ActivityHelper.getActionBarTheme());
+
         SportifiedApp sportApp = (SportifiedApp)getApplicationContext();
         UserMobile user = sportApp.getUser();
         //Setting the adapter dynamically
         RestClientHelper.getUserFavTeams(user.getIdUser(), this);
-        
+
         setContentView(R.layout.main_activity);
         mTitle = getString(R.string.title_activity_scores);
-        
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ExpandableListView) findViewById(R.id.left_drawer);
     	

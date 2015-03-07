@@ -13,7 +13,7 @@ import com.ludicrus.ludicrus.views.profile.SelectTeamActivity;
 public class ActivityHelper
 {
     public static int getActionBarTheme() {
-        return R.style.LudicrusActionBarDarkTheme;
+        return R.style.LudicrusToolbarDark;
     }
 
     public static int getAppTheme() {

@@ -9,19 +9,32 @@
 	    xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:id="@+id/drawer_layout"
 	    android:layout_width="match_parent"
-	    android:layout_height="match_parent">
-	    <!--<fragment 
-	        android:id="@+id/mainContent"
-	        android:name="@string/title_activity_scores"
-	        android:layout_width="match_parent"
-	    	android:layout_height="match_parent"
-	    	android:layout_weight="1"
-	        class="com.protheus.sportified.views.ScoresPagerFragment" />-->
-	    <!-- The main content view -->
-	    <FrameLayout
-	        android:id="@+id/mainContent"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent" />
+	    android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <!-- Your normal content view -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- We use a Toolbar so that our drawer can be displayed
+                 in front of the action bar -->
+            <android.support.v7.widget.Toolbar
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/main_toolbar"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:minHeight="?attr/actionBarSize"
+                android:background="@color/background_main_dark"
+                app:theme="@style/LudicrusToolbarDark"/>
+            <!-- The main content view -->
+            <FrameLayout
+                android:id="@+id/mainContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
 	    <!-- The navigation drawer -->
 	     <!-- should not be larger than 320 to show content -->
 	    <ExpandableListView 
@@ -32,6 +45,7 @@
 	        android:layout_gravity="start"
 	        android:choiceMode="singleChoice"
 	        android:divider="@android:color/transparent"
-	        android:dividerHeight="0dp"/>
+	        android:dividerHeight="0dp"
+            android:fitsSystemWindows="true"/>
 	</android.support.v4.widget.DrawerLayout>
 <!-- </LinearLayout> -->

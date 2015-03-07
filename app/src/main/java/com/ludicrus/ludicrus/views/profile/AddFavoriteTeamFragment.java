@@ -13,6 +13,7 @@ import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.ActionMode;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -57,6 +58,7 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 	private Button mHome;
 	private boolean misDirty = false;
 	private View loadingPanel;
+    private View mActionBarButtons;
 	
 	final EventListener listener = this;
 
@@ -110,14 +112,19 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 	
 	private void setupSelectionActionBar()
 	{
-		View actionBarButtons = getActivity().getLayoutInflater().inflate(R.layout.cancel_done_action_bar, new LinearLayout(getActivity()), false);
-		View cancelActionView = actionBarButtons.findViewById(R.id.action_cancel);
+		mActionBarButtons = getActivity().getLayoutInflater().inflate(R.layout.cancel_done_action_bar, new LinearLayout(getActivity()), false);
+		View cancelActionView = mActionBarButtons.findViewById(R.id.action_cancel);
 		cancelActionView.setOnClickListener(cancelListener);
-		View doneActionView = actionBarButtons.findViewById(R.id.action_done);
+		View doneActionView = mActionBarButtons.findViewById(R.id.action_done);
 		doneActionView.setOnClickListener(doneListener);
 		ActionBarActivity mainActivity = (ActionBarActivity)getActivity();
-		mainActivity.getSupportActionBar().setCustomView(actionBarButtons);
-		mainActivity.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        Toolbar toolbar = (Toolbar)mainActivity.findViewById(R.id.aux_toolbar);
+//        mainActivity.setSupportActionBar(toolbar);
+        toolbar.addView(mActionBarButtons, 0);
+        toolbar.setNavigationIcon(null);
+//        toolbar.removeAllViewsInLayout();
+//		mainActivity.getSupportActionBar().setCustomView(actionBarButtons);
+//		mainActivity.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 	}
 	
 	public void displayConfederations(View view)
@@ -132,6 +139,11 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
     	if(selectionBarVisible)
     	{
     		ActionBarActivity mainActivity = (ActionBarActivity)getActivity();
+            Toolbar toolbar = (Toolbar)mainActivity.findViewById(R.id.aux_toolbar);
+            mainActivity.setSupportActionBar(toolbar);
+            if(mActionBarButtons != null) {
+                toolbar.removeView(mActionBarButtons);
+            }
     		mainActivity.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
     		selectionBarVisible = false;
     	}
@@ -147,6 +159,11 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
     	if(selectionBarVisible)
     	{
     		ActionBarActivity mainActivity = (ActionBarActivity)getActivity();
+            Toolbar toolbar = (Toolbar)mainActivity.findViewById(R.id.aux_toolbar);
+            mainActivity.setSupportActionBar(toolbar);
+            if(mActionBarButtons != null) {
+                toolbar.removeView(mActionBarButtons);
+            }
     		mainActivity.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
     		selectionBarVisible = false;
     	}
@@ -155,13 +172,7 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-        // create ContextThemeWrapper from the original Activity Context with the custom theme
-        final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), ActivityHelper.getAppTheme());
-
-        // clone the inflater using the ContextThemeWrapper
-        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
-
-        return localInflater.inflate(R.layout.add_fav_team, container, false);
+        return inflater.inflate(R.layout.add_fav_team, container, false);
 	}
 	
 	@Override

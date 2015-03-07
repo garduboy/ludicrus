@@ -71,14 +71,8 @@ public class ScoresFragment extends Fragment
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        // create ContextThemeWrapper from the original Activity Context with the custom theme
-        final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), ActivityHelper.getAppTheme());
 
-        // clone the inflater using the ContextThemeWrapper
-        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
-
-        ViewGroup rootView = (ViewGroup) localInflater.inflate(
-                R.layout.fragment_slide_page, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_slide_page, container, false);
 
         if(position > 0 && position < 4)
         {

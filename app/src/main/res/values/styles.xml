@@ -6,6 +6,9 @@
         -->
     </style>
 
+    <style name="LudicrusAppTheme" parent="@style/Theme.AppCompat.Light">
+    </style>
+
     <style name="FullscreenTheme" parent="android:Theme.Holo.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -66,53 +69,23 @@
         <item name="android:padding">4dp</item>
     </style>
 
-    <style name="LudicrusActionBarDarkTheme"
-        parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/MyActionBarDark</item>
-        <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/MyActionBarDark</item>
-    </style>
-
-    <style name="LudicrusActionBarLightTheme"
-        parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/MyActionBar</item>
-        <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/MyActionBar</item>
-    </style>
-
-    <style name="LudicrusLightTheme"
-        parent="Theme.AppCompat.Light">
+    <style name="LudicrusDarkThemeBackground">
         <item name="android:background">@color/background_main</item>
     </style>
 
-    <style name="LudicrusDarkTheme"
-        parent="Theme.AppCompat.Light">
-        <item name="android:background">@color/background_main_dark</item>
+    <style name="LudicrusLightTheme" parent="Theme.AppCompat.Light">
+        <item name="windowActionBar">false</item>
+    </style>
+
+    <style name="LudicrusDarkTheme" parent="Theme.AppCompat.Light">
+        <item name="windowActionBar">false</item>
     </style>
 
     <!-- ActionBar styles -->
-    <style name="MyActionBar"
-        parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@color/background_main</item>
-        <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
-
-        <!-- Support library compatibility -->
-        <item name="background">@color/background_main</item>
-    </style>
-
-    <style name="MyActionBarDark"
-        parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@color/background_main_dark</item>
-        <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
-
-        <!-- Support library compatibility -->
-        <item name="background">@color/background_main_dark</item>
-    </style>
-
-    <!-- ActionBar title text -->
-    <style name="MyActionBarTitleText"
-        parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/text_font</item>
+    <style name="LudicrusToolbarDark" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:actionMenuTextColor">@color/text_font</item>
+        <item name="android:textColorPrimary">@color/text_font</item>
+        <item name="android:textColorSecondary">@color/text_font</item>
     </style>
 
     <!-- White Text -->
