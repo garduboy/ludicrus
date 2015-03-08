@@ -2,15 +2,11 @@ package com.ludicrus.ludicrus.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -22,22 +18,22 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.ExpandableListView;
 
 import com.ludicrus.core.model.interfaces.IOrganization;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
-import com.ludicrus.ludicrus.classes.AndroidOrganization;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
+import com.ludicrus.ludicrus.helpers.FavoriteTeamHelper;
 import com.ludicrus.ludicrus.helpers.RestClientHelper;
-import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.ludicrus.parcelable.UserMobile;
+import com.ludicrus.ludicrus.interfaces.AppEvent;
+import com.ludicrus.ludicrus.util.EnumNavAction;
 import com.ludicrus.ludicrus.util.ExpandableListAdapter;
 import com.ludicrus.ludicrus.util.TypefaceSpan;
 import com.ludicrus.ludicrus.views.profile.ProfileFragment;
 
-abstract public class SpinnerActivity extends BaseActivity implements EventListener {
+abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
 	protected OnNavigationListener navigationListener;
 	private boolean initialized = false;
 	private DrawerLayout mDrawerLayout;
@@ -53,7 +49,12 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 		Intent intent = ActivityHelper.startAddFavoriteTeamsActivity(this);
 		startActivity(intent);
 	}
-	
+
+    public void eventNotification()
+    {
+        setupNavigationDrawer();
+    }
+
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,8 +72,8 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ExpandableListView) findViewById(R.id.left_drawer);
-    	
-        final EventListener context = this;
+
+        final AppEvent callback = this;
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
                 mDrawerLayout,         /* DrawerLayout object */
@@ -89,10 +90,12 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                
-                SportifiedApp sportApp = (SportifiedApp)getApplicationContext();
-                UserMobile user = sportApp.getUser();
-                RestClientHelper.getUserFavTeams(user.getIdUser(), context);
+
+                //Favorite teams might have changed so let's reload
+                setupNavigationDrawer();
+//                SportifiedApp sportApp = (SportifiedApp)getApplicationContext();
+//                UserMobile user = sportApp.getUser();
+//                RestClientHelper.getUserFavTeams(user.getIdUser(), callback);
             }
         };
         
@@ -110,14 +113,6 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 	    ft.replace(R.id.mainContent, scores, mTitle.toString());
 	    ft.commit();
         setTitle(mTitle);
-		
-		//Set up drop-down navigation
-//  		SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list,
-//  		          R.layout.simple_spinner_item_sportified);
-//  		ActionBar actionBar = getSupportActionBar();
-//  		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-//  		actionBar.setListNavigationCallbacks(spinnerAdapter, navigationListener);
-//  		actionBar.setDisplayShowTitleEnabled(false);
 	}
 	
 	@Override
@@ -145,19 +140,15 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
         return super.onOptionsItemSelected(item);
     }
 	
-	private void processResult()
+	private void setupNavigationDrawer()
 	{
 		try
 		{
-			if(result == null)
-			{
-				return;
-			}
 			String[] navItems = getResources().getStringArray(R.array.action_list);
 			ArrayList<String> headers = new ArrayList<String>();
 			HashMap<String, List<String>> listDataChild = new HashMap<String, List<String>>();
 
-            ArrayList<IOrganization> favTeams = loadFavoriteTeams((JSONArray)result.get("favTeams"));
+            ArrayList<IOrganization> favTeams = FavoriteTeamHelper.getFavoriteTeams();
 
 			for(int i = 0; i < navItems.length; i++)
 			{
@@ -205,31 +196,6 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 			e.printStackTrace();
 		}
 	}
-
-    private ArrayList<IOrganization> loadFavoriteTeams(JSONArray teams)
-    {
-        try {
-            ArrayList<IOrganization> favTeams = new ArrayList<IOrganization>();
-            JSONArray items = teams;
-            Set<String> teamIds = new HashSet<String>();
-            for (int i = 0; i < items.length(); i++) {
-                IOrganization fav = new AndroidOrganization((JSONObject) items.get(i));
-                favTeams.add(fav);
-                teamIds.add(fav.getIdOrganization().toString());
-            }
-            storeFavoriteTeams(teamIds);
-            return favTeams;
-        } catch (Exception e)
-        {
-            return null;
-        }
-    }
-
-	public void setJSONObject(JSONObject json)
-    {
-		result = json;
-    	processResult();
-    }
 	
 	@Override
 	public void setTitle(CharSequence title) {
@@ -248,7 +214,7 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 		FragmentTransaction ft;
 		switch(groupPosition)
 		{
-		case 0:
+		case EnumNavAction.NAVIGATION_SCORES:
 			//Scores
 			// Create new fragment from our own Fragment class
 //			if(scores == null)
@@ -260,7 +226,7 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 		    // Apply changes
 		    ft.commit();
 			break;
-		case 1:
+		case EnumNavAction.NAVIGATION_PROFILE:
 			//Profile
 //			if(profile == null)
 				profile = new ProfileFragment();
@@ -269,7 +235,7 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 		    // Apply changes
 		    ft.commit();
 			break;
-		case 2:
+		case EnumNavAction.NAVIGATION_MY_TEAMS:
 			//My Teams
 			return;
 		}
@@ -278,17 +244,4 @@ abstract public class SpinnerActivity extends BaseActivity implements EventListe
 	    setTitle(strings[groupPosition]);
 	    mDrawerLayout.closeDrawer(mDrawerList);
 	}
-
-    private void storeFavoriteTeams(Set<String> favTeams)
-    {
-        try {
-            SharedPreferences settings = getSharedPreferences(SportifiedApp.PREFS_NAME, MODE_PRIVATE);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putStringSet(SportifiedApp.PREFS_FAVORITE_TEAMS, favTeams);
-            editor.commit();
-        } catch (Exception e)
-        {
-
-        }
-    }
 }

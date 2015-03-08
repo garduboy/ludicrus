@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
+import com.ludicrus.ludicrus.util.EnumNavAction;
 
 public class MainActivity extends SpinnerActivity{
 
@@ -50,16 +51,18 @@ public class MainActivity extends SpinnerActivity{
         switch (item.getItemId()) {
             case R.id.calendar:
             	strings = getResources().getStringArray(R.array.action_list);
-                scoresFragment = (ScoresPagerFragment) getSupportFragmentManager().findFragmentByTag(strings[0]);
+                scoresFragment = (ScoresPagerFragment) getSupportFragmentManager().findFragmentByTag(strings[EnumNavAction.NAVIGATION_SCORES]);
             	scoresFragment.onCalendarClick();
                 return true;
             case R.id.favorites:
+                //Store the favorites display option at app level
                 boolean favorites = !getDisplayFavorites();
                 setDisplayFavorites(favorites);
                 toggleFavoritesIcon(getDisplayFavorites(), item);
 
+                //Update the interface to display favorites/all
                 strings = getResources().getStringArray(R.array.action_list);
-                scoresFragment = (ScoresPagerFragment) getSupportFragmentManager().findFragmentByTag(strings[0]);
+                scoresFragment = (ScoresPagerFragment) getSupportFragmentManager().findFragmentByTag(strings[EnumNavAction.NAVIGATION_SCORES]);
                 scoresFragment.toggleFavorites();
                 return true;
             case R.id.menu_settings:

@@ -10,6 +10,7 @@ import com.ludicrus.ludicrus.parcelable.UserMobile;
 import com.ludicrus.core.util.EnumLoginType;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
@@ -21,6 +22,7 @@ public class SportifiedApp extends Application{
 	
 	private boolean isUserLogged = false;
 	private UserMobile user;
+    private static Context appContext;
 	
 	public Integer getLoginType()
 	{
@@ -56,7 +58,18 @@ public class SportifiedApp extends Application{
 			user = null;
 		}
 	}
-	
+
+    public static SharedPreferences getAppPreferences()
+    {
+        try
+        {
+            return appContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        } catch (Exception e)
+        {
+            return null;
+        }
+    }
+
 	public boolean isUserLogged()
 	{
 		return isUserLogged;
@@ -155,6 +168,7 @@ public class SportifiedApp extends Application{
 	@Override
 	public void onCreate()
 	{
+        appContext = getApplicationContext();
 		createUserInfo();
 	}
 	

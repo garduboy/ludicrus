@@ -8,9 +8,9 @@ import android.text.format.DateFormat;
 import com.facebook.model.GraphLocation;
 import com.facebook.model.GraphPlace;
 import com.facebook.model.GraphUser;
-import com.ludicrus.ludicrus.classes.AndroidOrganization;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.core.util.EnumSportItemType;
+import com.ludicrus.ludicrus.interfaces.AppEvent;
 
 public class RestClientHelper
 {
@@ -138,12 +138,14 @@ public class RestClientHelper
 		restClient.execute();
 	}
 	
-	public static final void getUserFavTeams(Integer userId, EventListener listener)
+	public static final void getUserFavTeams(Integer userId, AppEvent callback)
 	{
 		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/loadUserFavTeams.do", 0);
 		restClient.AddParam("userId", userId.toString());
 		restClient.AddParam("action", "loadUserFavTeams");
-		restClient.setListener(listener);
+        FavoriteTeamHelper favTeamHelper = FavoriteTeamHelper.getInstance();
+        favTeamHelper.setCallback(callback);
+		restClient.setListener(FavoriteTeamHelper.getInstance());
 		restClient.execute();
 	}
 }

@@ -1,16 +1,12 @@
 package com.ludicrus.ludicrus.views.profile;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.ludicrus.ludicrus.R;
-import com.ludicrus.ludicrus.helpers.ActivityHelper;
-import com.ludicrus.ludicrus.views.ScoresPagerFragment;
 
 public class AddFavoriteTeamActivity extends ActionBarActivity {
 	
