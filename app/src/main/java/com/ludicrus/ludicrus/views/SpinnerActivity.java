@@ -59,6 +59,8 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+//        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+
         SportifiedApp sportApp = (SportifiedApp)getApplicationContext();
         UserMobile user = sportApp.getUser();
         //Setting the adapter dynamically
@@ -93,9 +95,6 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
 
                 //Favorite teams might have changed so let's reload
                 setupNavigationDrawer();
-//                SportifiedApp sportApp = (SportifiedApp)getApplicationContext();
-//                UserMobile user = sportApp.getUser();
-//                RestClientHelper.getUserFavTeams(user.getIdUser(), callback);
             }
         };
         
@@ -114,10 +113,11 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
 	    ft.commit();
         setTitle(mTitle);
 	}
-	
+
 	@Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
         // Sync the toggle state after onRestoreInstanceState has occurred.
         mDrawerToggle.syncState();
     }

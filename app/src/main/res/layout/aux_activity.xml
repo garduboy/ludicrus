@@ -1,9 +1,11 @@
 <LinearLayout 
     android:id="@+id/auxContent"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/background_main_dark_alpha"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <!-- We use a Toolbar so that our drawer can be displayed
                  in front of the action bar -->

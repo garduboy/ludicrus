@@ -70,6 +70,35 @@ public class SportifiedApp extends Application{
         }
     }
 
+    public static int getSystemWindowHeight(String windowType)
+    {
+        try
+        {
+            int result = 0;
+            int resourceId;
+            switch (windowType)
+            {
+                case "NAVIGATION":
+                    resourceId = appContext.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+                    break;
+                case "STATUS":
+                    resourceId = appContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+                    break;
+                default:
+                    resourceId = appContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+                    break;
+            }
+
+            if (resourceId > 0) {
+                result = appContext.getResources().getDimensionPixelSize(resourceId);
+            }
+            return result;
+        } catch (Exception e)
+        {
+            return 0;
+        }
+    }
+
 	public boolean isUserLogged()
 	{
 		return isUserLogged;
