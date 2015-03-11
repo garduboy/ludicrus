@@ -3,6 +3,7 @@ package com.ludicrus.ludicrus.util;
 import java.util.HashMap;
 import java.util.List;
 
+import com.ludicrus.core.model.interfaces.IOrganization;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.parcelable.UserMobile;
@@ -20,9 +21,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private Context _context;
     private List<String> _listDataHeader; // header titles
     // child data in format of header title, child title
-    private HashMap<String, List<String>> _listDataChild;
+    private HashMap<String, List<Object>> _listDataChild;
 
-    public ExpandableListAdapter(Context context, List<String> listDataHeader, HashMap<String, List<String>> listChildData) {
+    public ExpandableListAdapter(Context context, List<String> listDataHeader, HashMap<String, List<Object>> listChildData) {
         this._context = context;
         this._listDataHeader = listDataHeader;
         this._listDataChild = listChildData;
@@ -30,13 +31,24 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getChild(int groupPosition, int childPosititon) {
-        return this._listDataChild.get(this._listDataHeader.get(groupPosition))
-                .get(childPosititon);
+        Object childItem = this._listDataChild.get(this._listDataHeader.get(groupPosition)).get(childPosititon);
+        String childText = "";
+        if(childItem instanceof IOrganization)
+        {
+            childItem = ((IOrganization) childItem).getName();
+        }
+        return childItem;
     }
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
+        Object childItem = this._listDataChild.get(this._listDataHeader.get(groupPosition)).get(childPosition);
+        long childId = 0;
+        if(childItem instanceof IOrganization)
+        {
+            childId = ((IOrganization) childItem).getIdOrganization();
+        }
+        return childId;
     }
 
     @Override

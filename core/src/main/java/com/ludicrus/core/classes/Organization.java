@@ -9,6 +9,7 @@ public class Organization implements IOrganization{
 	protected String 	name;
 	protected String	logo;
 	protected String 	country;
+    protected int		orgType;
 
 	public Integer getIdOrganization()
 	{
@@ -59,4 +60,14 @@ public class Organization implements IOrganization{
 	{
 		country = value;
 	}
+
+    public int getOrgType()
+    {
+        return orgType;
+    }
+
+    public void setOrgType(int value)
+    {
+        orgType = value;
+    }
 }

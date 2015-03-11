@@ -3,6 +3,7 @@ package com.ludicrus.ludicrus.views;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import org.json.JSONObject;
 
@@ -21,6 +22,9 @@ import android.view.View;
 import android.widget.ExpandableListView;
 
 import com.ludicrus.core.model.interfaces.IOrganization;
+import com.ludicrus.core.model.interfaces.ISportsTeam;
+import com.ludicrus.core.util.EnumSportItemType;
+import com.ludicrus.core.util.EnumSportType;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
@@ -146,23 +150,23 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
 		{
 			String[] navItems = getResources().getStringArray(R.array.action_list);
 			ArrayList<String> headers = new ArrayList<String>();
-			HashMap<String, List<String>> listDataChild = new HashMap<String, List<String>>();
+			HashMap<String, List<Object>> listDataChild = new HashMap<String, List<Object>>();
 
             ArrayList<IOrganization> favTeams = FavoriteTeamHelper.getFavoriteTeams();
 
 			for(int i = 0; i < navItems.length; i++)
 			{
 				String navItem = navItems[i];
-				List<String> subItems = new ArrayList<String>();
+				List<Object> subItems = new ArrayList<Object>();
 				if(navItem.equals(getString(R.string.title_activity_myTeams)))
 				{
 					if(favTeams.size() > 0)
-						subItems = new ArrayList<String>();
+						subItems = new ArrayList<Object>();
 					
 					for(int j = 0; j < favTeams.size(); j++)
 					{
 						IOrganization org = (IOrganization)favTeams.get(j);
-						subItems.add(org.getName());
+						subItems.add(org);//org.getName() + "::" + org.getIdOrganization());
 					}
 				}
 				headers.add(navItem);
@@ -177,7 +181,7 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
 	        mDrawerList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 	        	@Override
 	    	    public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
-	    	        selectItem(groupPosition);
+                    selectItem(groupPosition, childPosition, id);
 	    	        return true;
 	    	    }
 	        });
@@ -186,7 +190,7 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
 				
 				@Override
 				public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-					selectItem(groupPosition);
+					selectItem(groupPosition, -1, 0);
 					return false;
 				}
 			});
@@ -205,9 +209,9 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		getSupportActionBar().setTitle(s);
 	}
-	
+
 	/** Swaps fragments in the main content view */
-	private void selectItem(int groupPosition) {
+	private void selectItem(int groupPosition, int childPosition, long id) {
 		// Get the same strings provided for the drop-down's ArrayAdapter
     	String[] strings = getResources().getStringArray(R.array.action_list);
 		Intent intent;
@@ -237,6 +241,33 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
 			break;
 		case EnumNavAction.NAVIGATION_MY_TEAMS:
 			//My Teams
+            if(childPosition >= 0)
+            {
+                ArrayList<IOrganization> favTeams = FavoriteTeamHelper.getFavoriteTeams();
+                IOrganization team = null;
+                for(int i = 0; i < favTeams.size(); i++)
+                {
+                    if(favTeams.get(i).getIdOrganization() == id)
+                    {
+                        team = favTeams.get(i);
+                    }
+                }
+                if(team != null)
+                {
+                    if(team.getOrgType() == EnumSportItemType.TEAM) {
+                        try {
+                            ISportsTeam sportsTeam = (ISportsTeam)team;
+                            if(sportsTeam.getSportType() == EnumSportType.SOCCER) {
+                                intent = ActivityHelper.startSoccerTeamActivity(this, team.getIdOrganization());
+                                startActivity(intent);
+                            }
+                        } catch (Exception e)
+                        {
+
+                        }
+                    }
+                }
+            }
 			return;
 		}
 	    // Highlight the selected item, update the title, and close the drawer

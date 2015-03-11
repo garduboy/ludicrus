@@ -7,6 +7,7 @@ import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.login.Login;
 import com.ludicrus.ludicrus.views.MainActivity;
 import com.ludicrus.ludicrus.views.SettingsActivity;
+import com.ludicrus.ludicrus.views.SportsTeam.SportsTeamActivity;
 import com.ludicrus.ludicrus.views.profile.AddFavoriteTeamActivity;
 import com.ludicrus.ludicrus.views.profile.SelectTeamActivity;
 
@@ -85,4 +86,18 @@ public class ActivityHelper
     		return null;
     	}
 	}
+
+    public static final Intent startSoccerTeamActivity(Context context, long teamId)
+    {
+        try
+        {
+            Intent intent = new Intent(context, SportsTeamActivity.class);
+            intent.putExtra("sportsTeamId", teamId);
+            return intent;
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
 }

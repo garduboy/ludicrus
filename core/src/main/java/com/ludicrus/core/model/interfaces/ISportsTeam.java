@@ -18,7 +18,7 @@ public interface ISportsTeam
 
 	public String getNickname();
 	
-	public String getSportName();
+	public int getSportType();
 	
 	public String getStadiumName();
 	

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.format.DateFormat;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import com.ludicrus.core.model.interfaces.IMatch;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.classes.AndroidSoccerMatch;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
+import com.ludicrus.ludicrus.interfaces.AppEvent;
 import com.ludicrus.ludicrus.util.MatchAdapter;
 
 public class ScoresFragment extends Fragment
@@ -46,16 +48,27 @@ public class ScoresFragment extends Fragment
 	private boolean mWaiting;
 	
 	private TextView text;
-	
+
+    private SwipeRefreshLayout mSwipeLayout;
+
+    private SwipeRefreshLayout.OnRefreshListener mRefreshListener;
+
+
 	public ScoresFragment()
 	{
 		mWaiting = true;
 	}
+
+    public void setRefreshListener(SwipeRefreshLayout.OnRefreshListener listener) {
+        mRefreshListener = listener;
+    }
 	
 	public void hideProgress()
 	{
-		if(mProgress != null)
-		{
+        if(mSwipeLayout != null) {
+            mSwipeLayout.setRefreshing(false);
+        }
+		if(mProgress != null){
 			mProgress.setVisibility(View.GONE);
 //			text.setVisibility(View.GONE);
 		}
@@ -85,8 +98,10 @@ public class ScoresFragment extends Fragment
 	    	text.setText(pageDate + " I:" + index + " P:"+ position);
 //	    	text.setVisibility(View.VISIBLE);
 	    	text.setVisibility(View.GONE);
-        	
-	        RelativeLayout layout = (RelativeLayout)rootView.findViewById(R.id.content);
+
+            mSwipeLayout = (SwipeRefreshLayout)rootView.findViewById(R.id.swipe_layout);
+            mSwipeLayout.setOnRefreshListener(mRefreshListener);
+            mSwipeLayout.setColorSchemeResources(R.color.background_main_dark, R.color.highlight);
 	        
 	        mListView = new ListView(getActivity());
 	        mListView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -100,7 +115,7 @@ public class ScoresFragment extends Fragment
 	        showProgress();
 	        loadAdapter();
 //	        setAdapter();
-	        layout.addView(mListView);
+            mSwipeLayout.addView(mListView);
         }
         return rootView;
     }
@@ -172,7 +187,7 @@ public class ScoresFragment extends Fragment
 		super.onAttach(activity);
 //		loadAdapter();
 	}
-	
+
 	private void setAdapter()
 	{
 		if(mListView != null)

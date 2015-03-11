@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="LudicrusDarkTheme" parent="Theme.AppCompat.Light">
-        <item name="android:windowTranslucentNavigation">true</item>
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
+        <!--<item name="android:windowTranslucentNavigation">true</item>-->
+        <!-- Removing translucent status bar because of issue in kit kat
+        https://mindofaandroiddev.wordpress.com/2013/12/28/making-the-status-bar-and-navigation-bar-transparent-with-a-listview-on-android-4-4-kitkat/-->
         <item name="windowActionBar">false</item>
     </style>
 </resources>

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import com.ludicrus.core.model.interfaces.IOrganization;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.classes.AndroidOrganization;
+import com.ludicrus.ludicrus.classes.AndroidSportsTeam;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.ludicrus.interfaces.AppEvent;
 
@@ -65,7 +66,7 @@ public class FavoriteTeamHelper implements EventListener{
             JSONArray items = teams;
             Set<String> teamIds = new HashSet<String>();
             for (int i = 0; i < items.length(); i++) {
-                IOrganization fav = new AndroidOrganization((JSONObject) items.get(i));
+                IOrganization fav = new AndroidSportsTeam((JSONObject) items.get(i));
                 favoriteTeams.add(fav);
                 teamIds.add(fav.getIdOrganization().toString());
             }

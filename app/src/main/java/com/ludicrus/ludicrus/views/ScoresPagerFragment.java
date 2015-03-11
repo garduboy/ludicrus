@@ -22,6 +22,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -82,9 +83,16 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     private static int mCurrentIndex = 0;
     
     Object callback;
+    private SwipeRefreshLayout.OnRefreshListener refreshListener;
 	
     private void createCallbacks()
     {
+        refreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshPageModel();
+            }
+        };
     	if(Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     	{
     		callback = new mirko.android.datetimepicker.date.DatePickerDialog.OnDateSetListener()
@@ -110,7 +118,15 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     		};
     	}
     }
-    
+
+    private void refreshPageModel()
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(mPageModel[PAGE_MIDDLE].getDate());
+        mPageModel[PAGE_MIDDLE].setWaiting(true);
+        RestClientHelper.getFixtures(calendar, 0, this);
+    }
+
     private void createOnDateSet(int year, int monthOfYear, int dayOfMonth)
     {
     	Calendar calendarSelected = Calendar.getInstance();
@@ -150,7 +166,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
         difference = difference * increment;
         loadDate(calendarSelected, difference);
     }
-    
+
 	private void loadDate(Calendar calendar, int difference)
 	{
 		mTitleIndicator.invalidate();
@@ -207,7 +223,9 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     	super.onViewCreated(view, savedInstanceState);
     	
         initialized = false;
-        
+
+        createCallbacks();
+
         initPageModel(savedInstanceState);
 
         // Instantiate a ViewPager and a PagerAdapter.
@@ -231,8 +249,6 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
         calendar.add(Calendar.DATE, -1);
         RestClientHelper.getFixtures(calendar, 2, this);
         handler.postDelayed(refreshRate, delay);
-        
-        createCallbacks();
         
     }
 
@@ -498,6 +514,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 	    	    mPageModel[i] = fragment;
 	    	    mPageModel[i].setIndex((mCurrentIndex - 2) + i);
 	    	    mPageModel[i].setPosition(i);
+                mPageModel[i].setRefreshListener(refreshListener);
     	    }
     	}
     }

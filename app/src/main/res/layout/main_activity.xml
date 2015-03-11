@@ -17,7 +17,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:fitsSystemWindows="true">
 
             <!-- We use a Toolbar so that our drawer can be displayed
                  in front of the action bar -->
@@ -40,7 +41,7 @@
 
 	    <!-- The navigation drawer -->
 	     <!-- should not be larger than 320 to show content -->
-	    <ExpandableListView 
+	    <ExpandableListView
 	        android:id="@+id/left_drawer"
 	        android:background="#ffffff"
 	        android:layout_width="240dp"

@@ -16,5 +16,6 @@ public class AndroidOrganization extends Organization
 		this.name = (json.has("name")? json.getString("name"):"");
 		this.logo = (json.has("logo")? json.getString("logo"):"");
 		this.country = (json.has("country")? json.getString("country"):"");
+        this.orgType = (json.has("orgType")? json.getInt("orgType"):0);
 	}
 }

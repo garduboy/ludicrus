@@ -9,15 +9,16 @@ public class AndroidSportsTeam extends SportsTeam
 {
 	public AndroidSportsTeam(JSONObject json) throws JSONException
 	{
-		this.countryName = json.getString("countryName");
-		this.description = json.getString("description");
-		this.homePageURL = json.getString("homePageURL");
-		this.idTeam = json.getInt("idTeam");
-		this.logo = json.getString("logo");
-		this.name = json.getString("name");
-		this.nickname = json.getString("nickname");
-		this.sportName = json.getString("sportName");
-		this.stadiumName = json.getString("stadiumName");
-		this.wikiLink = json.getString("wikiLink");
+		this.countryName = (json.has("countryName")? json.getString("countryName"):"");
+		this.description = (json.has("description")? json.getString("description"):"");
+		this.homePageURL = (json.has("homePageURL")? json.getString("homePageURL"):"");
+		this.idTeam = (json.has("idTeam")? json.getInt("idTeam"):0);
+        this.feedId = (json.has("feedId")? json.getInt("feedId"):0);
+		this.logo = (json.has("logo")? json.getString("logo"):"");
+		this.name = (json.has("name")? json.getString("name"):"");
+		this.nickname = (json.has("nickname")? json.getString("nickname"):"");
+		this.sportType = (json.has("sportType")? json.getInt("sportType"):0);
+		this.stadiumName = (json.has("stadiumName")? json.getString("stadiumName"):"");
+		this.wikiLink = (json.has("wikiLink")? json.getString("wikiLink"):"");
 	}
 }
