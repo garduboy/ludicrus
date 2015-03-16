@@ -34,6 +34,11 @@
             android:theme="@style/LudicrusDarkTheme">
         </activity>
         <activity
+            android:label="@string/title_activity_sportsTeam"
+            android:name="com.ludicrus.ludicrus.views.sportsTeam.SportsTeamPagerActivity"
+            android:theme="@style/LudicrusDarkTheme">
+        </activity>
+        <activity
             android:excludeFromRecents="true"
             android:label="@string/settings"
             android:name="com.ludicrus.ludicrus.views.SettingsActivity">

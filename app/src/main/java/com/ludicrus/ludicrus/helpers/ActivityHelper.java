@@ -7,9 +7,9 @@ import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.login.Login;
 import com.ludicrus.ludicrus.views.MainActivity;
 import com.ludicrus.ludicrus.views.SettingsActivity;
-import com.ludicrus.ludicrus.views.SportsTeam.SportsTeamActivity;
 import com.ludicrus.ludicrus.views.profile.AddFavoriteTeamActivity;
 import com.ludicrus.ludicrus.views.profile.SelectTeamActivity;
+import com.ludicrus.ludicrus.views.sportsTeam.SportsTeamPagerActivity;
 
 public class ActivityHelper
 {
@@ -91,7 +91,7 @@ public class ActivityHelper
     {
         try
         {
-            Intent intent = new Intent(context, SportsTeamActivity.class);
+            Intent intent = new Intent(context, SportsTeamPagerActivity.class);
             intent.putExtra("sportsTeamId", teamId);
             return intent;
         }

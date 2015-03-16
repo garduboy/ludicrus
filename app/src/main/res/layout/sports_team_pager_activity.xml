@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sports_team_layout"
+    android:background="@color/background_main_dark"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/sports_team_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/sports_team_header"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/header_height" >
+
+        <ImageView
+            android:id="@+id/sports_team_bg"
+            android:scaleType="centerCrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_header"/>
+
+        <ImageView
+            android:id="@+id/header_logo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_header_logo" />
+
+        <com.ludicrus.ludicrus.library.view.SlidingTabLayout
+            android:background="@color/background_main"
+            android:id="@+id/sports_team_tabs"
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </FrameLayout>
+
+    <!-- We use a Toolbar so that our drawer can be displayed
+                     in front of the action bar -->
+    <android.support.v7.widget.Toolbar
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:id="@+id/sports_team_toolbar"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/background_main_dark"
+        android:layout_gravity="fill_horizontal"/>
+
+</FrameLayout>
+
+<!--OLD VERSION OF SPORTS TEAM ACTIVITY-->
+
+    <!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<FrameLayout-->
+<!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--android:background="@color/background_main_dark_alpha"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="match_parent"-->
+<!--android:fitsSystemWindows="true">-->
+<!--<LinearLayout-->
+    <!--android:id="@+id/sports_team_layout"-->
+    <!--android:orientation="vertical"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent">-->
+
+    <!--<ListView-->
+        <!--android:background="#ffff0000"-->
+        <!--android:id="@+id/sports_team_main"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
+    <!--</ListView>-->
+<!--</LinearLayout>-->
+<!--&lt;!&ndash; We use a Toolbar so that our drawer can be displayed-->
+                 <!--in front of the action bar &ndash;&gt;-->
+<!--<android.support.v7.widget.Toolbar-->
+    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--app:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
+    <!--android:id="@+id/sports_team_toolbar"-->
+    <!--android:layout_height="?attr/actionBarSize"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:minHeight="?attr/actionBarSize"-->
+    <!--android:background="@color/background_main_dark"-->
+    <!--android:layout_gravity="fill_horizontal"/>-->
+
+<!--</FrameLayout>-->
+
+<!--OLD VERSION OF SPORTS TEAM CONTENT-->
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="0dp"-->
+<!--android:orientation="vertical">-->
+
+<!--<com.ludicrus.ludicrus.library.view.SlidingTabLayout-->
+    <!--android:background="#ff00ff00"-->
+    <!--android:id="@+id/sliding_tabs"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content" />-->
+
+<!--<android.support.v4.view.ViewPager-->
+    <!--android:background="#ff0000ff"-->
+    <!--android:id="@+id/sportsTeamPager"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"/>-->
+
+<!--</LinearLayout>-->
