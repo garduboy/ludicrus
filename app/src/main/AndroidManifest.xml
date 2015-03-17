@@ -36,6 +36,7 @@
         <activity
             android:label="@string/title_activity_sportsTeam"
             android:name="com.ludicrus.ludicrus.views.sportsTeam.SportsTeamPagerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/LudicrusDarkTheme">
         </activity>
         <activity

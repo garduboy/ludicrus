@@ -129,7 +129,9 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
         }
 
         int firstVisiblePosition = view.getFirstVisiblePosition();
-        int top = c.getTop();
+        //Strange issue where the first item in the list view is offset by 2 pixels everytime there is a page change
+        //This alleviates it but it is not the proper fix
+        int top = c.getTop() + 2;
 
         int headerHeight = 0;
         if (firstVisiblePosition >= 1) {
@@ -217,6 +219,7 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
             Window win = getWindow();
             win.getDecorView().getWindowVisibleDisplayFrame(rect);
             int statusHeight = rect.top;
+            rect = new Rect();
             view.getLocalVisibleRect(rect);
 
             int headerHeight = mHeaderBackground.getHeight() - mSlidingTabLayout.getHeight() - statusHeight;
@@ -259,7 +262,7 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
 //        getSupportActionBar().setTitle(mSpannableString);
     }
 
-    public class PagerAdapter extends FragmentStatePagerAdapter {
+    public class PagerAdapter extends FragmentPagerAdapter {
 
         private SparseArrayCompat<PagerScroller> mScrollTabHolders;
         private final String[] TITLES = { "Page 1", "Page 2", "Page 3", "Page 4"};
@@ -307,7 +310,7 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
 
         @Override
         public Fragment getItem(int position) {
-            if(getFragments()[position] == null) {
+//            if(getFragments()[position] == null) {
                 SportsTeamPagerFragment fragment = (SportsTeamPagerFragment) SportsTeamPagerFragment.newInstance(position, mAvailableSpace);
 
                 mScrollTabHolders.put(position, fragment);
@@ -315,8 +318,8 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
                     fragment.setScrollTabHolder(mListener);
                 }
 
-                fragments[position] = fragment;
-            }
+                getFragments()[position] = fragment;
+//            }
 
             return fragments[position];
         }

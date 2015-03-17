@@ -44,6 +44,11 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
         return f;
     }
 
+    public SportsTeamPagerFragment()
+    {
+        super();
+    }
+
     public void setMinimumHeight(int minimumHeight)
     {
         mMinimumHeight = minimumHeight;
@@ -62,6 +67,7 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         mPosition = getArguments().getInt(ARG_POSITION);
 
         mListItems = new ArrayList<String>();
@@ -87,10 +93,11 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
                     View itemView = mListView.getChildAt(1);
                     int itemHeight = itemView.getHeight();
                     int itemCount = mListView.getAdapter().getCount() - 1;
-                    int listViewHeight = (itemHeight * itemCount);
+                    int listViewDividerHeight = mListView.getDividerHeight();
+                    int listViewHeight = (itemHeight * itemCount) + (listViewDividerHeight * (itemCount - 1));
                     if (mMinimumHeight > listViewHeight) {
                         View extraSpace = new View(mListView.getContext());
-                        extraSpace.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mMinimumHeight - listViewHeight));
+                        extraSpace.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, mMinimumHeight - listViewHeight));
                         mListView.addFooterView(extraSpace);
                     }
                     mExtraSpaceCalculated = true;
