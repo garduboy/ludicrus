@@ -1,58 +1,66 @@
 package com.ludicrus.ludicrus.views.sportsTeam;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.ludicrus.core.model.interfaces.IOrganization;
 import com.ludicrus.ludicrus.R;
+import com.ludicrus.ludicrus.classes.AndroidSportsTeam;
+import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
+import com.ludicrus.ludicrus.helpers.ui.AssetsHelper;
+import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.ludicrus.interfaces.PagerScroller;
 import com.ludicrus.ludicrus.library.view.SlidingTabLayout;
+import com.ludicrus.ludicrus.util.EnumTypeface;
+import com.ludicrus.ludicrus.util.OrganizationLogoRenderer;
+
+import org.json.JSONObject;
 
 /**
  * Created by jpgarduno on 3/14/15.
  */
-public class SportsTeamPagerActivity extends ActionBarActivity implements PagerScroller, ViewPager.OnPageChangeListener {
+public class SportsTeamPagerActivity extends ActionBarActivity implements PagerScroller, ViewPager.OnPageChangeListener, EventListener {
 
     private static AccelerateDecelerateInterpolator sSmoothInterpolator = new AccelerateDecelerateInterpolator();
-    private int mMinHeaderTranslation;
-    private int mActionBarHeight;
-    private int mHeaderHeight;
-    private int mMinHeaderHeight;
-    private ImageView mHeaderLogo;
-    private ImageView mHeaderBackground;
-    private View mHeader;
-    private SlidingTabLayout mSlidingTabLayout;
-    private ViewPager mViewPager;
+    private Drawable    mActionBarBackgroundDrawable;
+    private int         mActionBarHeight;
+    private View        mHeader;
+    private ImageView   mHeaderBackground;
+    private int         mHeaderHeight;
+    private ImageView   mHeaderLogo;
     private PagerAdapter mPagerAdapter;
-    private Toolbar mToolbar;
-    private SpannableString mSpannableString;
+    private SlidingTabLayout mSlidingTabLayout;
+    private TextView    mTeamName;
+    private Toolbar     mToolbar;
+    private ViewPager   mViewPager;
+    //    private SpannableString mSpannableString;
 //    private AlphaForegroundColorSpan mAlphaForegroundColorSpan;
-    private Drawable mActionBarBackgroundDrawable;
 
 
-    private int lastTopValueAssigned = 0;
+    private JSONObject  result;
+    private float lastTopValueAssigned = 0;
 
     private RectF mRect1 = new RectF();
     private RectF mRect2 = new RectF();
@@ -150,13 +158,12 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
         mToolbar = (Toolbar)findViewById(R.id.sports_team_toolbar);
         setSupportActionBar(mToolbar);
 
-        mMinHeaderHeight = getResources().getDimensionPixelSize(R.dimen.min_header_height);
         mHeaderHeight = getResources().getDimensionPixelSize(R.dimen.header_height);
-        mMinHeaderTranslation =  getActionBarHeight() - mMinHeaderHeight;
 
         mHeaderLogo = (ImageView) findViewById(R.id.header_logo);
         mHeaderBackground = (ImageView)findViewById(R.id.sports_team_bg);
         mHeader = findViewById(R.id.sports_team_header);
+        mTeamName = (TextView)findViewById(R.id.sports_team_name);
 
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sports_team_tabs);
         mViewPager = (ViewPager) findViewById(R.id.sports_team_pager);
@@ -177,6 +184,13 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
                 //setListAdapter(getScreenAvailableHeight());
             }
         });
+
+
+        Intent intent = getIntent();
+        mTeamName.setText(intent.getStringExtra("sportsTeamName"));
+        mTeamName.setTypeface(AssetsHelper.getTypeFace(this, EnumTypeface.QUICKSAND));
+        long teamId = intent.getLongExtra("sportsTeamId", 0);
+        RestClientHelper.getSportsTeamDetails(this, String.valueOf(teamId));
 
 //        mSpannableString = new SpannableString(getString(R.string.actionbar_title));
 //        mAlphaForegroundColorSpan = new AlphaForegroundColorSpan(0xffffffff);
@@ -215,22 +229,15 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
     private void parallaxImage(View view) {
         if(view != null)
         {
-            Rect rect = new Rect();
-            Window win = getWindow();
-            win.getDecorView().getWindowVisibleDisplayFrame(rect);
-            int statusHeight = rect.top;
-            rect = new Rect();
-            view.getLocalVisibleRect(rect);
-
-            int headerHeight = mHeaderBackground.getHeight() - mSlidingTabLayout.getHeight() - statusHeight;
+            int headerHeight = mHeaderBackground.getHeight() - mSlidingTabLayout.getHeight() - getActionBarHeight();
             float ratio = 0;
-
-            if (lastTopValueAssigned != rect.top) {
-                lastTopValueAssigned = rect.top;
-                float headerTop = (float)(rect.top / 2);
+            float headerViewTop = -(mHeader.getTranslationY());
+            if (lastTopValueAssigned != headerViewTop) {
+                lastTopValueAssigned = headerViewTop;
+                float headerTop = (float)(headerViewTop / 2);
                 view.setY(headerTop);
 
-                float viewTop = rect.top * 2;
+                float viewTop = -(mHeader.getTranslationY());
 
                 if (viewTop > 0 && headerHeight > 0)
                     ratio = (float) Math.min(Math.max(viewTop, 0), headerHeight) / headerHeight;
@@ -238,7 +245,6 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
 
                 mActionBarBackgroundDrawable = mToolbar.getBackground();
                 mActionBarBackgroundDrawable.setAlpha(newAlpha);
-//                mToolbar.setBackground(mActionBarBackgroundDrawable);
             }
         }
     }
@@ -247,13 +253,51 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount, int pagePosition) {
         if (mViewPager.getCurrentItem() == pagePosition) {
             int scrollY = getScrollY(view);
-            mHeader.setTranslationY(Math.max(-scrollY, mMinHeaderTranslation));
+            int headerTranslation = -(mHeaderBackground.getHeight() - mSlidingTabLayout.getHeight() - getActionBarHeight());
+            mHeader.setTranslationY(Math.max(-scrollY, headerTranslation));
 //            float ratio = clamp(mHeader.getTranslationY() / mMinHeaderTranslation, 0.0f, 1.0f);
 //            ImageView iconView = (ImageView) findViewById(android.support.v7.appcompat.R.id.home);
 //            interpolate(mHeaderLogo, iconView, sSmoothInterpolator.getInterpolation(ratio));
 //            setTitleAlpha(clamp(5.0F * ratio - 4.0F, 0.0F, 1.0F));
             parallaxImage(mHeaderBackground);
         }
+    }
+
+    private void populateTeamInfo(JSONObject sportsTeam)
+    {
+        try
+        {
+            IOrganization organization = new AndroidSportsTeam((JSONObject) sportsTeam);
+            Bitmap teamLogo = OrganizationLogoRenderer.getMaskedOrganizationLogo(organization.getLogo(), this);
+            mHeaderLogo.setImageBitmap(teamLogo);
+
+        } catch (Exception e)
+        {
+
+        }
+
+    }
+
+    public void setJSONObject(JSONObject json)
+    {
+        try
+        {
+            result = json;
+            if(result == null)
+                return;
+            String resultInfo = (String)result.get("resultInfo");
+            if(resultInfo.equals("teamDetails"))
+            {
+                JSONObject sportsTeam = (JSONObject)result.get("team");
+                populateTeamInfo(sportsTeam);
+                //Populate Results, Calendar, Squad
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
     private void setTitleAlpha(float alpha) {
@@ -265,7 +309,7 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
     public class PagerAdapter extends FragmentPagerAdapter {
 
         private SparseArrayCompat<PagerScroller> mScrollTabHolders;
-        private final String[] TITLES = { "Page 1", "Page 2", "Page 3", "Page 4"};
+        private final String[] TITLES = { getString(R.string.results), getString(R.string.calendar), getString(R.string.squad)};
         private SportsTeamPagerFragment[] fragments;
         private PagerScroller mListener;
         private int mAvailableSpace = 0;
@@ -310,35 +354,17 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
 
         @Override
         public Fragment getItem(int position) {
-//            if(getFragments()[position] == null) {
-                SportsTeamPagerFragment fragment = (SportsTeamPagerFragment) SportsTeamPagerFragment.newInstance(position, mAvailableSpace);
+            SportsTeamPagerFragment fragment = (SportsTeamPagerFragment) SportsTeamPagerFragment.newInstance(position, mAvailableSpace);
 
-                mScrollTabHolders.put(position, fragment);
-                if (mListener != null) {
-                    fragment.setScrollTabHolder(mListener);
-                }
+            mScrollTabHolders.put(position, fragment);
+            if (mListener != null) {
+                fragment.setScrollTabHolder(mListener);
+            }
 
-                getFragments()[position] = fragment;
-//            }
+            getFragments()[position] = fragment;
 
             return fragments[position];
         }
-
-//        @Override
-//        public Object instantiateItem(ViewGroup container, int position) {
-//            if(getFragments()[position] == null) {
-//                SportsTeamPagerFragment fragment = (SportsTeamPagerFragment) SportsTeamPagerFragment.newInstance(position, mAvailableSpace);
-//
-//                mScrollTabHolders.put(position, fragment);
-//                if (mListener != null) {
-//                    fragment.setScrollTabHolder(mListener);
-//                }
-//
-//                fragments[position] = fragment;
-//            }
-//
-//            return fragments[position];
-//        }
 
         public SparseArrayCompat<PagerScroller> getScrollTabHolders() {
             return mScrollTabHolders;

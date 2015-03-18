@@ -1,4 +1,4 @@
-package com.ludicrus.ludicrus.helpers;
+package com.ludicrus.ludicrus.helpers.network;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

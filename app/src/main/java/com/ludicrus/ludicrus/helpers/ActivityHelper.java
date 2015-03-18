@@ -87,12 +87,13 @@ public class ActivityHelper
     	}
 	}
 
-    public static final Intent startSoccerTeamActivity(Context context, long teamId)
+    public static final Intent startSoccerTeamActivity(Context context, long teamId, String teamName)
     {
         try
         {
             Intent intent = new Intent(context, SportsTeamPagerActivity.class);
             intent.putExtra("sportsTeamId", teamId);
+            intent.putExtra("sportsTeamName", teamName);
             return intent;
         }
         catch(Exception e)

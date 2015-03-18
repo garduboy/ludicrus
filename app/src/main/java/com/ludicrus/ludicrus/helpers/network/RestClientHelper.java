@@ -1,4 +1,4 @@
-package com.ludicrus.ludicrus.helpers;
+package com.ludicrus.ludicrus.helpers.network;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,6 +8,7 @@ import android.text.format.DateFormat;
 import com.facebook.model.GraphLocation;
 import com.facebook.model.GraphPlace;
 import com.facebook.model.GraphUser;
+import com.ludicrus.ludicrus.helpers.FavoriteTeamHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.core.util.EnumSportItemType;
 import com.ludicrus.ludicrus.interfaces.AppEvent;
@@ -16,11 +17,11 @@ public class RestClientHelper
 {
 //	final static String server = "10.0.2.2:8080";
 //	final static String server = "10.22.42.106:8080";
-	final static String server = "kincua.com:8080";
+	final static String server = "http://kincua.com:8080/ludicrus/util";
 	
 	public static final void addFavoriteTeams(Integer userId, ArrayList<Integer> addedTeams, ArrayList<Integer> removedTeams, EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/addFavoriteTeams.do", 0);
+		RestClient restClient = new RestClient(server + "/addFavoriteTeams.do", 0);
 		restClient.AddParam("action", "addFavoriteTeams");
 		restClient.AddParam("userId", userId.toString());
 		int i;
@@ -42,7 +43,7 @@ public class RestClientHelper
 	
 	public static final void login(String userName, String password, EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/mobileLogin.do", 0);
+		RestClient restClient = new RestClient(server + "/mobileLogin.do", 0);
 		restClient.AddParam("action", "login");
 		restClient.AddParam("userName", userName);
 		restClient.AddParam("password", password);
@@ -52,7 +53,7 @@ public class RestClientHelper
 	
 	public static final void logGuest(EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/mobileLogin.do", 0);
+		RestClient restClient = new RestClient(server + "/mobileLogin.do", 0);
 		restClient.AddParam("action", "logGuest");
 		restClient.setListener(listener);
 		restClient.execute();
@@ -60,7 +61,7 @@ public class RestClientHelper
 	
 	public static final void loginFBUser(GraphUser user, EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/mobileLogin.do", 0);
+		RestClient restClient = new RestClient(server + "/mobileLogin.do", 0);
 		restClient.AddParam("action", "loginFB");
 		restClient.AddParam("userName", user.getFirstName());
 		restClient.AddParam("name", user.getFirstName());
@@ -84,7 +85,7 @@ public class RestClientHelper
 	
 	public static final void getConfederationList(EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/loadConfederations.do", 0);
+		RestClient restClient = new RestClient(server + "/loadConfederations.do", 0);
 		restClient.AddParam("action", "loadConfederations");
 		restClient.AddParam("orgType", EnumSportItemType.CONFEDERATION + "");
 		restClient.setListener(listener);
@@ -93,7 +94,7 @@ public class RestClientHelper
 	
 	public static final void getFederationList(String confederationID, EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/loadFederations.do", 0);
+		RestClient restClient = new RestClient(server + "/loadFederations.do", 0);
 		restClient.AddParam("action", "loadFederations");
 		restClient.AddParam("orgID", confederationID);
 		restClient.AddParam("orgType", EnumSportItemType.FEDERATION + "");
@@ -103,7 +104,7 @@ public class RestClientHelper
 	
 	public static final void getFixtures(Calendar startDate, int offsetDays, EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/loadSoccerFixturesByDate.do", 0);
+		RestClient restClient = new RestClient(server + "/loadSoccerFixturesByDate.do", 0);
 		restClient.AddParam("action", "loadSoccerFixtures");
 		restClient.AddParam("startDate", DateFormat.format("yyyy-MM-dd", startDate.getTime()).toString());
 		startDate.add(Calendar.DATE, offsetDays);
@@ -114,22 +115,31 @@ public class RestClientHelper
 	
 	public static final void getLiveScores(EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/loadSoccerScores.do", 0);
+		RestClient restClient = new RestClient(server + "/loadSoccerScores.do", 0);
 		restClient.AddParam("action", "loadSoccerLiveScores");
 		restClient.setListener(listener);
 		restClient.execute();
 	}
-	
+
+    public static final void getSportsTeamDetails(EventListener listener, String teamId)
+    {
+        RestClient restClient = new RestClient(server + "/loadTeamDetails.do", 0);
+        restClient.AddParam("action", "loadTeamDetails");
+        restClient.AddParam("teamId", teamId);
+        restClient.setListener(listener);
+        restClient.execute();
+    }
+
 	public static final void getTeams(EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/loadSoccerTeams.do", 0);
+		RestClient restClient = new RestClient(server + "/loadSoccerTeams.do", 0);
 		restClient.setListener(listener);
 		restClient.execute();
 	}
 	
 	public static final void getTeamsByFederation(Integer userId, String federationID, EventListener listener)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/loadTeamsByFederation.do", 0);
+		RestClient restClient = new RestClient(server + "/loadTeamsByFederation.do", 0);
 		restClient.AddParam("action", "loadTeamsByFed");
 		restClient.AddParam("orgID", federationID);
 		restClient.AddParam("userId", userId.toString());
@@ -140,7 +150,7 @@ public class RestClientHelper
 	
 	public static final void getUserFavTeams(Integer userId, AppEvent callback)
 	{
-		RestClient restClient = new RestClient("http://" + server + "/ludicrus/util/loadUserFavTeams.do", 0);
+		RestClient restClient = new RestClient(server + "/loadUserFavTeams.do", 0);
 		restClient.AddParam("userId", userId.toString());
 		restClient.AddParam("action", "loadUserFavTeams");
         FavoriteTeamHelper favTeamHelper = FavoriteTeamHelper.getInstance();

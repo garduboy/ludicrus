@@ -23,7 +23,7 @@ import com.ludicrus.core.util.EnumSportItemType;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.classes.AndroidOrganization;
-import com.ludicrus.ludicrus.helpers.RestClientHelper;
+import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.ludicrus.parcelable.UserMobile;
 import com.ludicrus.ludicrus.util.OrganizationAdapter;

@@ -101,41 +101,10 @@ public class OrganizationAdapter extends BaseAdapter
         	else
         		holder.favoriteOrg.setImageDrawable(mContext.getResources().getDrawable(R.drawable.star_empty));
         }
-	      
-        byte[] decodedString = Base64.decode(mData.get(position).getLogo(), Base64.DEFAULT);
-        Bitmap orgLogo = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        int width = orgLogo.getWidth();
-        int height = orgLogo.getHeight();
-        
-        Bitmap teamMask = BitmapFactory.decodeResource(mInflater.getContext().getResources(), R.drawable.team_mask);
-        Bitmap teamMaskAlpha = BitmapFactory.decodeResource(mInflater.getContext().getResources(), R.drawable.team_mask_alpha);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER));
-        Bitmap teamMaskResized = Bitmap.createScaledBitmap(teamMask, width, height, true);
-        Bitmap teamMaskAlphaResized = Bitmap.createScaledBitmap(teamMaskAlpha, width, height, true);
-        
-        //Create alpha bitmap
-        Bitmap alpha = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-        int[] alphaPix = new int[width * height];
-        teamMaskAlphaResized.getPixels(alphaPix, 0, width, 0, 0, width, height);
-        int count = width * height;
-        for (int i = 0; i < count; ++i)
-        {
-            alphaPix[i] = alphaPix[i] << 8;
-        }
-        alpha.setPixels(alphaPix, 0, width, 0, 0, width, height);
-        
-        Bitmap result = Bitmap.createBitmap(teamMaskResized.getWidth(), teamMaskResized.getHeight(), Config.ARGB_8888);
-        Canvas c = new Canvas(result);
-        c.drawBitmap(orgLogo, 0, 0, null);
-        c.drawBitmap(teamMaskResized, 0, 0, paint);
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-        c.drawBitmap(alpha, 0, 0, paint);
-        paint.setXfermode(null);
-        
-        holder.organizationLogo.setImageBitmap(result);
+
+        Bitmap orgLogo = OrganizationLogoRenderer.getMaskedOrganizationLogo(mData.get(position).getLogo(), mInflater.getContext());
+
+        holder.organizationLogo.setImageBitmap(orgLogo);
         
         return convertView;
 	}

@@ -28,7 +28,9 @@ import com.ludicrus.core.model.interfaces.IMatch;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.classes.AndroidSoccerMatch;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
+import com.ludicrus.ludicrus.helpers.ui.AssetsHelper;
 import com.ludicrus.ludicrus.interfaces.AppEvent;
+import com.ludicrus.ludicrus.util.EnumTypeface;
 import com.ludicrus.ludicrus.util.MatchAdapter;
 
 public class ScoresFragment extends Fragment
@@ -106,8 +108,8 @@ public class ScoresFragment extends Fragment
 	        mListView = new ListView(getActivity());
 	        mListView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
             mListView.setDividerHeight(5);
-	        Typeface quickTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Quicksand-Regular.ttf");
-            Typeface lobsterTypeFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/LobsterTwo-Regular.ttf");
+	        Typeface quickTypeFace = AssetsHelper.getTypeFace(getActivity(), EnumTypeface.QUICKSAND);
+            Typeface lobsterTypeFace = AssetsHelper.getTypeFace(getActivity(), EnumTypeface.LOBSTER);
 	        mMatchAdapter = new MatchAdapter((LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE));
             mMatchAdapter.setmTypeface(quickTypeFace);
             mMatchAdapter.setmScoreTypeface(lobsterTypeFace);
@@ -146,8 +148,8 @@ public class ScoresFragment extends Fragment
             if(activity == null)
                 return false;
 
-            Typeface quickTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Quicksand-Regular.ttf");
-            Typeface lobsterTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/LobsterTwo-Regular.ttf");
+            Typeface quickTypeFace = AssetsHelper.getTypeFace(activity, EnumTypeface.QUICKSAND);
+            Typeface lobsterTypeFace = AssetsHelper.getTypeFace(activity, EnumTypeface.LOBSTER);
             mMatchAdapter = new MatchAdapter((LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
             mMatchAdapter.setmTypeface(quickTypeFace);
             mMatchAdapter.setmScoreTypeface(lobsterTypeFace);

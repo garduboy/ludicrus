@@ -27,8 +27,10 @@ import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.helpers.Hash;
-import com.ludicrus.ludicrus.helpers.RestClientHelper;
+import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
+import com.ludicrus.ludicrus.helpers.ui.AssetsHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
+import com.ludicrus.ludicrus.util.EnumTypeface;
 
 public class Login extends Activity implements EventListener 
 {
@@ -157,8 +159,8 @@ public class Login extends Activity implements EventListener
         
         progressBar = (ProgressBar)findViewById(R.id.progress_bar);
         
-        Typeface lobsterTypeFace = Typeface.createFromAsset(getAssets(),"fonts/LobsterTwo-Regular.ttf");
-        Typeface quickTypeFace = Typeface.createFromAsset(getAssets(),"fonts/Quicksand-Regular.ttf");
+        Typeface lobsterTypeFace = AssetsHelper.getTypeFace(this, EnumTypeface.LOBSTER);
+        Typeface quickTypeFace = AssetsHelper.getTypeFace(this, EnumTypeface.QUICKSAND);
         
         EditText userName = (EditText)findViewById(R.id.username);
         userName.setTypeface(quickTypeFace);

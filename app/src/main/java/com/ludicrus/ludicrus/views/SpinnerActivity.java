@@ -3,7 +3,6 @@ package com.ludicrus.ludicrus.views;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import org.json.JSONObject;
 
@@ -29,7 +28,7 @@ import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.helpers.FavoriteTeamHelper;
-import com.ludicrus.ludicrus.helpers.RestClientHelper;
+import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
 import com.ludicrus.ludicrus.parcelable.UserMobile;
 import com.ludicrus.ludicrus.interfaces.AppEvent;
 import com.ludicrus.ludicrus.util.EnumNavAction;
@@ -258,7 +257,7 @@ abstract public class SpinnerActivity extends BaseActivity implements AppEvent {
                         try {
                             ISportsTeam sportsTeam = (ISportsTeam)team;
                             if(sportsTeam.getSportType() == EnumSportType.SOCCER) {
-                                intent = ActivityHelper.startSoccerTeamActivity(this, team.getIdOrganization());
+                                intent = ActivityHelper.startSoccerTeamActivity(this, sportsTeam.getIdTeam(), sportsTeam.getName());
                                 startActivity(intent);
                             }
                         } catch (Exception e)

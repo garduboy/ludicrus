@@ -23,16 +23,30 @@
             android:layout_height="match_parent"
             android:src="@drawable/ic_header"/>
 
-        <ImageView
-            android:id="@+id/header_logo"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/ic_header_logo" />
+            >
+            <ImageView
+                android:id="@+id/header_logo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:id="@+id/sports_team_name"
+                android:layout_below="@+id/header_logo"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:paddingTop="20dp"
+                android:textColor="@color/text_font"
+                />
+        </RelativeLayout>
 
         <com.ludicrus.ludicrus.library.view.SlidingTabLayout
-            android:background="@color/background_main"
             android:id="@+id/sports_team_tabs"
+            android:background="@color/background_main"
             android:layout_gravity="bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -74,8 +88,8 @@
         <!--android:layout_height="match_parent">-->
     <!--</ListView>-->
 <!--</LinearLayout>-->
-<!--&lt;!&ndash; We use a Toolbar so that our drawer can be displayed-->
-                 <!--in front of the action bar &ndash;&gt;-->
+<!--We use a Toolbar so that our drawer can be displayed-->
+                 <!--in front of the action bar -->
 <!--<android.support.v7.widget.Toolbar-->
     <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
     <!--app:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
