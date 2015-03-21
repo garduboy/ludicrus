@@ -48,6 +48,7 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 	private boolean misDirty = false;
 	private View loadingPanel;
     private View mActionBarButtons;
+    private OrganizationAdapter mOrgAdapter;
 	
 	final EventListener listener = this;
 
@@ -185,7 +186,8 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 			{
 				return;
 			}
-			if(result.has("result")) {
+			if(result.has("result"))
+            {
 				loadingPanel.setVisibility(View.GONE);
 				if(result.get("result").equals("SUCCESS")) {
                     SportifiedApp sportApp = (SportifiedApp)getActivity().getApplicationContext();
@@ -195,120 +197,56 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 				}
 				return;
 			}
-			JSONArray items = (JSONArray)result.get("itemList");
-			Integer itemType = (Integer)result.get("itemType");
-			
-			OrganizationAdapter adapter = new OrganizationAdapter((LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE), itemType, getActivity());
-			IOrganization organization;
-			for(int i = 0; i < items.length(); i++)
-			{
-				JSONObject obj = (JSONObject)items.get(i);
-				organization = new AndroidOrganization(obj);
-				adapter.addItem(organization);
-			}
-			
-			AdapterView.OnItemClickListener clickListener = null;
-			loadingPanel = getActivity().findViewById(R.id.loadingPanel);
-			SportifiedApp sportApp = (SportifiedApp)getActivity().getApplicationContext();
-	        final UserMobile user = sportApp.getUser();
-			if(itemType == EnumSportItemType.CONFEDERATION)
-			{
-				clickListener = new AdapterView.OnItemClickListener() {
-		            @Override
-		            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    OrgHolder holder = (OrgHolder)v.getTag();
-                    //Setting the adapter dynamically
-                    mConfederationID = holder.organizationId;
-                    RestClientHelper.getFederationList(mConfederationID, listener);
+            if(result.has("icons"))
+            {
 
-                    mHome = (Button) getActivity().findViewById(R.id.favTeamsHome);
-                    mConfederation = (Button) getActivity().findViewById(R.id.confederation);
-                    RelativeLayout l = (RelativeLayout)v;
-                    ImageView i = (ImageView)l.getChildAt(0);
-                    TextView t = (TextView)l.getChildAt(1);
-                    mConfederation.setText(t.getText());
-                    mConfederation.setCompoundDrawablesWithIntrinsicBounds(i.getDrawable(), null, null, null);
-                    mHome.setVisibility(View.VISIBLE);
-                    mConfederation.setVisibility(View.VISIBLE);
-                    mTeamList.setAdapter(null);
-                    loadingPanel.setVisibility(View.VISIBLE);
-		            }
-		        };
-			} else if(itemType == EnumSportItemType.FEDERATION)
-			{
-				clickListener = new AdapterView.OnItemClickListener() {
-		            @Override
-		            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    OrgHolder holder = (OrgHolder)v.getTag();
-                    //Setting the adapter dynamically
-                    RestClientHelper.getTeamsByFederation(user.getIdUser(), holder.organizationId, listener);
+                JSONArray items = (JSONArray) result.get("icons");
+                Integer itemType = (Integer) result.get("itemType");
+                for (int i = 0; i < items.length(); i++)
+                {
+                    JSONObject obj = (JSONObject) items.get(i);
+                    int orgId = obj.getInt("orgId");
+                    for(int j = 0; j < mOrgAdapter.getCount(); j++)
+                    {
+                        AndroidOrganization organization = (AndroidOrganization)mOrgAdapter.getItem(j);
+                        if(orgId == organization.getIdOrganization())
+                        {
+                            String logo = obj.getString("orgLogo");
+                            organization.setLogo(logo);
+                        }
+                    }
+                }
+                setOrganizationAdapter(mOrgAdapter, itemType);
+                mOrgAdapter = null;
+            }
+            else{
+                JSONArray items = (JSONArray) result.get("itemList");
+                Integer itemType = (Integer) result.get("itemType");
+                ArrayList<String> orgsNoLogo = new ArrayList<String>();
 
-                    mFederation = (Button) getActivity().findViewById(R.id.federation);
-                    RelativeLayout l = (RelativeLayout)v;
-                    ImageView i = (ImageView)l.getChildAt(0);
-                    TextView t = (TextView)l.getChildAt(1);
-                    mFederation.setText(t.getText());
-                    mFederation.setCompoundDrawablesWithIntrinsicBounds(i.getDrawable(), null, null, null);
-                    mHome.setVisibility(View.VISIBLE);
-                    mConfederation.setVisibility(View.VISIBLE);
-                    mFederation.setVisibility(View.VISIBLE);
-                    mTeamList.setAdapter(null);
-                    loadingPanel.setVisibility(View.VISIBLE);
-                    if (!selectionBarVisible)
+                OrganizationAdapter adapter = new OrganizationAdapter((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE), itemType, getActivity());
+                IOrganization organization;
+                for (int i = 0; i < items.length(); i++) {
+                    JSONObject obj = (JSONObject) items.get(i);
+                    organization = new AndroidOrganization(obj);
+                    adapter.addItem(organization);
+                    if(!organization.hasLogo())
                     {
-                        setupSelectionActionBar();
-                        selectionBarVisible = true;
+                        orgsNoLogo.add(organization.getIdOrganization() + ";" + organization.getOrgType());
                     }
-		            }
-		        };
-			} else if(itemType == EnumSportItemType.TEAM) {
-				clickListener = new AdapterView.OnItemClickListener() {
-		            @Override
-		            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    misDirty = true;
-                    OrgHolder holder = (OrgHolder)v.getTag();
-                    AndroidOrganization organization = null;
-                    ListAdapter adapter = mTeamList.getAdapter();
-                    for(int i = 0; i < adapter.getCount(); i++)
-                    {
-                        organization = (AndroidOrganization)adapter.getItem(i);
-                        if(organization.getIdOrganization() == Integer.parseInt(holder.organizationId))
-                        {
-                            break;
-                        }
-                    }
-                    if(organization != null) {
-                        //Setting the adapter dynamically
-                        if(organization.getIsFavorite())
-                        {
-                            mRemovedTeams.add(organization.getIdOrganization());
-                            if(mAddedTeams.contains(organization.getIdOrganization()))
-                            {
-                                mAddedTeams.remove(organization.getIdOrganization());
-                            }
-                            organization.setIsFavorite(false);
-                            holder.favoriteOrg.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.star_empty));
-                        }
-                        else
-                        {
-                            mAddedTeams.add(organization.getIdOrganization());
-                            if(mRemovedTeams.contains(organization.getIdOrganization()))
-                            {
-                                mRemovedTeams.remove(organization.getIdOrganization());
-                            }
-                            organization.setIsFavorite(true);
-                            holder.favoriteOrg.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.star_full));
-                        }
-                    }
-		            }
-		        };
-			}
+                }
+
+                if(orgsNoLogo.size() > 0)
+                {
+                    RestClientHelper.getOrganizationIcons(this, orgsNoLogo, itemType);
+                    mOrgAdapter = adapter;
+                } else
+                {
+                    setOrganizationAdapter(adapter, itemType);
+                }
+            }
 			
-	        // Set the adapter for the list view
-			mTeamList.setAdapter(adapter);
-			
-			mTeamList.setOnItemClickListener(clickListener);
-			loadingPanel.setVisibility(View.GONE);
+
 			
 		}
 		catch(Exception e)
@@ -316,7 +254,119 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
 			e.printStackTrace();
 		}
 	}
-	
+
+    private void setOrganizationAdapter(OrganizationAdapter adapter, Integer itemType)
+    {
+        try
+        {
+            AdapterView.OnItemClickListener clickListener = null;
+            loadingPanel = getActivity().findViewById(R.id.loadingPanel);
+            SportifiedApp sportApp = (SportifiedApp)getActivity().getApplicationContext();
+            final UserMobile user = sportApp.getUser();
+            if(itemType == EnumSportItemType.CONFEDERATION)
+            {
+                clickListener = new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                        OrgHolder holder = (OrgHolder)v.getTag();
+                        //Setting the adapter dynamically
+                        mConfederationID = holder.organizationId;
+                        RestClientHelper.getFederationList(mConfederationID, listener);
+
+                        mHome = (Button) getActivity().findViewById(R.id.favTeamsHome);
+                        mConfederation = (Button) getActivity().findViewById(R.id.confederation);
+                        RelativeLayout l = (RelativeLayout)v;
+                        ImageView i = (ImageView)l.getChildAt(0);
+                        TextView t = (TextView)l.getChildAt(1);
+                        mConfederation.setText(t.getText());
+                        mConfederation.setCompoundDrawablesWithIntrinsicBounds(i.getDrawable(), null, null, null);
+                        mHome.setVisibility(View.VISIBLE);
+                        mConfederation.setVisibility(View.VISIBLE);
+                        mTeamList.setAdapter(null);
+                        loadingPanel.setVisibility(View.VISIBLE);
+                    }
+                };
+            } else if(itemType == EnumSportItemType.FEDERATION)
+            {
+                clickListener = new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                        OrgHolder holder = (OrgHolder)v.getTag();
+                        //Setting the adapter dynamically
+                        RestClientHelper.getTeamsByFederation(user.getIdUser(), holder.organizationId, listener);
+
+                        mFederation = (Button) getActivity().findViewById(R.id.federation);
+                        RelativeLayout l = (RelativeLayout)v;
+                        ImageView i = (ImageView)l.getChildAt(0);
+                        TextView t = (TextView)l.getChildAt(1);
+                        mFederation.setText(t.getText());
+                        mFederation.setCompoundDrawablesWithIntrinsicBounds(i.getDrawable(), null, null, null);
+                        mHome.setVisibility(View.VISIBLE);
+                        mConfederation.setVisibility(View.VISIBLE);
+                        mFederation.setVisibility(View.VISIBLE);
+                        mTeamList.setAdapter(null);
+                        loadingPanel.setVisibility(View.VISIBLE);
+                        if (!selectionBarVisible)
+                        {
+                            setupSelectionActionBar();
+                            selectionBarVisible = true;
+                        }
+                    }
+                };
+            } else if(itemType == EnumSportItemType.TEAM) {
+                clickListener = new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                        misDirty = true;
+                        OrgHolder holder = (OrgHolder)v.getTag();
+                        AndroidOrganization organization = null;
+                        ListAdapter adapter = mTeamList.getAdapter();
+                        for(int i = 0; i < adapter.getCount(); i++)
+                        {
+                            organization = (AndroidOrganization)adapter.getItem(i);
+                            if(organization.getIdOrganization() == Integer.parseInt(holder.organizationId))
+                            {
+                                break;
+                            }
+                        }
+                        if(organization != null) {
+                            //Setting the adapter dynamically
+                            if(organization.getIsFavorite())
+                            {
+                                mRemovedTeams.add(organization.getIdOrganization());
+                                if(mAddedTeams.contains(organization.getIdOrganization()))
+                                {
+                                    mAddedTeams.remove(organization.getIdOrganization());
+                                }
+                                organization.setIsFavorite(false);
+                                holder.favoriteOrg.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.star_empty));
+                            }
+                            else
+                            {
+                                mAddedTeams.add(organization.getIdOrganization());
+                                if(mRemovedTeams.contains(organization.getIdOrganization()))
+                                {
+                                    mRemovedTeams.remove(organization.getIdOrganization());
+                                }
+                                organization.setIsFavorite(true);
+                                holder.favoriteOrg.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.star_full));
+                            }
+                        }
+                    }
+                };
+            }
+
+            // Set the adapter for the list view
+            mTeamList.setAdapter(adapter);
+
+            mTeamList.setOnItemClickListener(clickListener);
+            loadingPanel.setVisibility(View.GONE);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 	public void setJSONObject(JSONObject json)
     {
     	try

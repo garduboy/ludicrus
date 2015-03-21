@@ -103,4 +103,14 @@ public class SportsTeam implements ISportsTeam, IOrganization {
     public int getOrgType() {
         return EnumSportItemType.TEAM;
     }
+    public boolean hasLogo()
+    {
+        if(getLogo().equals(""))
+        {
+            return false;
+        } else
+        {
+            return true;
+        }
+    }
 }

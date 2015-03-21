@@ -107,8 +107,7 @@ public class RestClientHelper
 		RestClient restClient = new RestClient(server + "/loadSoccerFixturesByDate.do", 0);
 		restClient.AddParam("action", "loadSoccerFixtures");
 		restClient.AddParam("startDate", DateFormat.format("yyyy-MM-dd", startDate.getTime()).toString());
-		startDate.add(Calendar.DATE, offsetDays);
-		restClient.AddParam("endDate", DateFormat.format("yyyy-MM-dd", startDate.getTime()).toString());
+		restClient.AddParam("offset", String.valueOf(offsetDays));
 		restClient.setListener(listener);
 		restClient.execute();
 	}
@@ -120,6 +119,21 @@ public class RestClientHelper
 		restClient.setListener(listener);
 		restClient.execute();
 	}
+
+    public static final void getOrganizationIcons(EventListener listener, ArrayList<String> teamIds, Integer itemType)
+    {
+        RestClient restClient = new RestClient(server + "/loadIcons.do", 0);
+        restClient.AddParam("action", "loadIcons");
+        String teams = "";
+        for(int i = 0; i < teamIds.size(); i ++)
+        {
+            teams += teamIds.get(i) + ":";
+        }
+        restClient.AddParam("teamIds", teams);
+        restClient.AddParam("itemType", String.valueOf(itemType));
+        restClient.setListener(listener);
+        restClient.execute();
+    }
 
     public static final void getSportsTeamDetails(EventListener listener, String teamId)
     {

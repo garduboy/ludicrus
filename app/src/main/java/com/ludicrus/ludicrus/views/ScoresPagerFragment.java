@@ -1,9 +1,12 @@
 package com.ludicrus.ludicrus.views;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -74,6 +77,8 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     private boolean initialized;
     
     private MediaPlayer _shootMP = null;
+
+    private ArrayList<String> datesRequested = new ArrayList<String>();
     
     
     // we save each page in a model
@@ -116,6 +121,26 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 
     		};
     	}
+    }
+
+    private void addDateRequest(String date, int offset)
+    {
+        try {
+            Calendar cal = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            cal.setTime(sdf.parse(date));
+            for (int i = 0; i <= offset; i++) {
+                if (!datesRequested.contains(date))
+                {
+                    datesRequested.add(date);
+                }
+                cal.add(Calendar.DATE, 1);
+                date = sdf.format(cal.getTime());
+            }
+        } catch (ParseException pe)
+        {
+            pe.printStackTrace();
+        }
     }
 
     private void refreshPageModel()
@@ -255,7 +280,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     final long delay = 30000;
     public void runTask()
     {
-    	RestClientHelper.getLiveScores(this);
+//    	RestClientHelper.getLiveScores(this);
     }
     Runnable refreshRate = new Runnable() {	
     	@Override
@@ -340,61 +365,77 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     		e.printStackTrace();
     	}
 	}
-    
+
+    private void processIcons()
+    {
+        try {
+            JSONArray logos = (JSONArray) result.get("icons");
+            for (int i = 0; i < logos.length(); i++) {
+                JSONObject obj = (JSONObject) logos.get(i);
+                int orgId = obj.getInt("orgId");
+                //Update matches to avoid going to database for logos
+                ArrayList<IMatch> matches;
+                for (int j = 0; j < datesRequested.size(); j++) {
+                    String tempDate = datesRequested.get(j);
+                    if (matchList.containsKey(tempDate)) {
+                        matches = matchList.get(tempDate);
+                        for (int k = 0; k < matches.size(); k++) {
+                            IMatch match = matches.get(k);
+                            if (match.containsTeamId(orgId)) {
+                                String logo = obj.getString("orgLogo");
+                                match.setTeamLogo(orgId, logo);
+                            }
+                        }
+                    }
+                }
+                //TODO Store the logo in the DB
+            }
+            initScoresModel();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     private void processResult()
     {
     	try
     	{
-    		JSONArray items = (JSONArray)result.get("items");
-    		IMatch match;
-    		for(int i = 0; i < items.length(); i++)
-    		{
-    			JSONObject itemMap = (JSONObject)items.get(i);
-    			match = new AndroidSoccerMatch((JSONObject)itemMap.get("matches"));
-    			ArrayList<IMatch> matches;
-    			if(matchList.containsKey(match.getDate()))
-				{
-    				matches = matchList.get(match.getDate());
-    				for(int j = 0; j < matches.size(); j++)
-    				{
-    					if(match.getIdMatch().equals(matches.get(j).getIdMatch()))
-    					{
-    						matches.remove(j);
-    						break;
-    					}
-    				}
-					matches.add(match);
-				}
-    			else
-    			{
-    				matches = new ArrayList<IMatch>();
-    				matches.add(match);
-    				matchList.put(match.getDate(), matches);
-    			}
-    		}
-    		for (int j = 0; j < mPageModel.length; j++)
-	    	{
-    			Object startDate = result.get("startDate");
-    			if(startDate != null)
-    			{
-	    			String date = (String)startDate;
-	    			String pageDate = DateFormat.format("yyyy-MM-dd", mPageModel[j].getDate()).toString();
-	    			if(date.equals(pageDate) && mPageModel[j].isWaiting() == true)
-	    			{
-	    				mPageModel[j].setWaiting(false);
-		    	    	mPageModel[j].resultsFetched();
-	    			}
-    			}
-	    	}  
-    		if(!initialized)
-    		{
-    			for (int j = 0; j < mPageModel.length; j++)
-    	    	{
-    				mPageModel[j].setWaiting(false);
-	    	    	mPageModel[j].resultsFetched();
-    	    	}
-    			initialized = true;
-    		}
+            JSONArray items = (JSONArray) result.get("items");
+            String startDate = (String)result.get("startDate");
+            int offset = (int)result.get("offset");
+            String cache = (String)result.get("dataCache");
+            addDateRequest(startDate, offset);
+            IMatch match;
+            ArrayList<String> orgsNoLogo = new ArrayList<String>();
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject itemMap = (JSONObject) items.get(i);
+                match = new AndroidSoccerMatch((JSONObject) itemMap.get("matches"));
+                ArrayList<IMatch> matches;
+                if (matchList.containsKey(match.getDate())) {
+                    matches = matchList.get(match.getDate());
+                    for (int j = 0; j < matches.size(); j++) {
+                        if (match.getIdMatch().equals(matches.get(j).getIdMatch())) {
+                            matches.remove(j);
+                            break;
+                        }
+                    }
+                    matches.add(match);
+                } else {
+                    matches = new ArrayList<IMatch>();
+                    matches.add(match);
+                    matchList.put(match.getDate(), matches);
+                }
+
+                if (!match.hasLogos()) {
+                    orgsNoLogo.add(match.getLogoRequest());
+                }
+            }
+            if (orgsNoLogo.size() > 0) {
+                RestClientHelper.getOrganizationIcons(this, orgsNoLogo, 0); //Don't care about item type
+            } else {
+                initScoresModel();
+            }
     	}
     	catch(Exception e)
     	{
@@ -491,7 +532,10 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 	  
 //		  model.setAdapter();
 	}
-    
+
+
+    /* PAGE MODEL INITIALIZATION */
+
     private void initPageModel(Bundle savedInstanceState)
     {
     	for (int i = 0; i < mPageModel.length; i++)
@@ -517,6 +561,49 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     	    }
     	}
     }
+
+    private void initScoresModel()
+    {
+        try
+        {
+            ArrayList<String> datesLoaded = new ArrayList<String>();
+            for (int i = 0; i < mPageModel.length; i++)
+            {
+                if(datesRequested.size() == 0)
+                {
+                    mPageModel[i].setWaiting(false);
+                    mPageModel[i].resultsFetched();
+                } else
+                {
+                    for (int j = 0; j < datesRequested.size(); j++) {
+                        String tempDate = datesRequested.get(j);
+                        String pageDate = DateFormat.format("yyyy-MM-dd", mPageModel[i].getDate()).toString();
+                        if (tempDate.equals(pageDate) && mPageModel[i].isWaiting() == true) {
+                            mPageModel[i].setWaiting(false);
+                            mPageModel[i].resultsFetched();
+                            datesLoaded.add(tempDate);
+                        }
+                    }
+                }
+            }
+            for(int i = 0; i < datesLoaded.size(); i++)
+            {
+                datesRequested.remove(datesLoaded.get(i));
+            }
+            if(!initialized)
+            {
+                for (int j = 0; j < mPageModel.length; j++)
+                {
+                    mPageModel[j].setWaiting(false);
+                    mPageModel[j].resultsFetched();
+                }
+                initialized = true;
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
     
     
     public void setJSONObject(JSONObject json)
@@ -526,14 +613,19 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 	    	result = json;
 	    	if(result == null)
 	    		return;
-	    	String resultInfo = (String)result.get("resultInfo");
-	    	if(resultInfo != null)
-	    	{
-	    		if(resultInfo.equals("liveScores"))
-	    			processLiveScores();
-	    		else
-		    		processResult();
-	    	}
+            if(result.has("icons"))
+            {
+                processIcons();
+            } else {
+                String resultInfo = (String) result.get("resultInfo");
+                if (resultInfo != null) {
+                    if (resultInfo.equals("liveScores")) {
+//                        processLiveScores();
+                    }
+                    else
+                        processResult();
+                }
+            }
     	}
     	catch(Exception e)
     	{

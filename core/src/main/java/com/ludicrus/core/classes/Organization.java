@@ -70,4 +70,8 @@ public class Organization implements IOrganization{
     {
         orgType = value;
     }
+
+    public boolean hasLogo(){
+        throw new UnsupportedOperationException();
+    }
 }

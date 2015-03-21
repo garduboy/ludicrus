@@ -21,4 +21,18 @@ public class AndroidSportsTeam extends SportsTeam
 		this.stadiumName = (json.has("stadiumName")? json.getString("stadiumName"):"");
 		this.wikiLink = (json.has("wikiLink")? json.getString("wikiLink"):"");
 	}
+
+    @Override
+    public boolean hasLogo()
+    {
+        boolean hasLogo = false;
+        if(logo == null || logo.equals("") || logo.equals("null"))
+        {
+            //Check cache
+        } else
+        {
+            hasLogo = true;
+        }
+        return hasLogo;
+    }
 }

@@ -12,7 +12,9 @@ public interface IMatch
 	public static final int TYPE_STARTED = 4;
 	public static final int TYPE_HALF_TIME = 3;
 	public static final int TYPE_FINISHED = 2;
-	
+
+    public boolean containsTeamId(Integer teamId);
+
 	public Integer getIdMatch();
 	
 	public String getDate();
@@ -78,12 +80,18 @@ public interface IMatch
 	public String getAwayYC();
 	
 	public String getAwayRC();
-	
+
+    public String getLogoRequest();
+
 	public String getSport();
 	
 	public int getType();
+
+    public boolean hasLogos();
 	
 	public void setHomeTeamLogo(String value);
 	
 	public void setAwayTeamLogo(String value);
+
+    public void setTeamLogo(Integer teamId, String logo);
 }

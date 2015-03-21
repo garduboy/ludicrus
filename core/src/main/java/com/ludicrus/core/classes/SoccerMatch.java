@@ -46,7 +46,17 @@ public class SoccerMatch implements IMatch, Serializable {
 	protected String	awayYC;
 	protected String	awayRC;
 	protected int		type;
-	
+
+    public boolean containsTeamId(Integer orgId)
+    {
+        boolean containsTeam = false;
+        if(getHomeTeamId().equals(orgId) || getAwayTeamId().equals(orgId))
+        {
+            containsTeam = true;
+        }
+        return containsTeam;
+    }
+
 	public Integer getIdMatch() {
 		return idMatch;
 	}
@@ -269,6 +279,12 @@ public class SoccerMatch implements IMatch, Serializable {
 	public void setAwayFormation(String awayFormation) {
 		this.awayFormation = awayFormation;
 	}
+
+    public String getLogoRequest()
+    {
+        throw new UnsupportedOperationException();
+    }
+
 	public String getSport()
 	{
 		return "soccer";
@@ -278,6 +294,17 @@ public class SoccerMatch implements IMatch, Serializable {
 	{
 		return type;
 	}
+
+    public boolean hasLogos()
+    {
+        boolean hasAllLogos = true;
+
+        if(getHomeTeamLogo() == null || getHomeTeamLogo().equals("null") || getHomeTeamLogo().equals(""))
+            hasAllLogos = false;
+        if(getAwayTeamLogo() == null || getAwayTeamLogo().equals("null") || getAwayTeamLogo().equals(""))
+            hasAllLogos = false;
+        return hasAllLogos;
+    }
 	
 	public void setType(int type)
 	{
@@ -295,4 +322,16 @@ public class SoccerMatch implements IMatch, Serializable {
 	public void setAwayTeamLogo(String awayTeamLogo) {
 		this.awayTeamLogo = awayTeamLogo;
 	}
+
+    public void setTeamLogo(Integer teamId, String logo)
+    {
+        if(getHomeTeamId().equals(teamId))
+        {
+            setHomeTeamLogo(logo);
+        }
+        if(getAwayTeamId().equals(teamId))
+        {
+            setAwayTeamLogo(logo);
+        }
+    }
 }

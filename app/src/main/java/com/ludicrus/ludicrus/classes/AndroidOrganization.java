@@ -18,4 +18,18 @@ public class AndroidOrganization extends Organization
 		this.country = (json.has("country")? json.getString("country"):"");
         this.orgType = (json.has("orgType")? json.getInt("orgType"):0);
 	}
+
+    @Override
+    public boolean hasLogo()
+    {
+        boolean hasLogo = false;
+        if(logo == null || logo.equals("") || logo.equals("null"))
+        {
+            //Check cache
+        } else
+        {
+            hasLogo = true;
+        }
+        return hasLogo;
+    }
 }

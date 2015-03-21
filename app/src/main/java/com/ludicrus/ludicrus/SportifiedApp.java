@@ -4,14 +4,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.facebook.Session;
-import com.facebook.model.GraphUser;
-import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.parcelable.UserMobile;
 import com.ludicrus.core.util.EnumLoginType;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
 public class SportifiedApp extends Application{
@@ -199,6 +196,7 @@ public class SportifiedApp extends Application{
 	{
         appContext = getApplicationContext();
 		createUserInfo();
+
+        // Initialize disk cache on background thread
 	}
-	
 }

@@ -199,6 +199,7 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
 
         mActionBarBackgroundDrawable = mToolbar.getBackground();
         mActionBarBackgroundDrawable.setAlpha(0);
+        setTitle("");
     }
 
     private void setListAdapter(int screenHeight)

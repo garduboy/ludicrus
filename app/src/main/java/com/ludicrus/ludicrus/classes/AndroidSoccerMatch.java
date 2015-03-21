@@ -3,6 +3,7 @@ package com.ludicrus.ludicrus.classes;
 import android.content.SharedPreferences;
 
 import com.ludicrus.core.classes.SoccerMatch;
+import com.ludicrus.core.util.EnumSportItemType;
 import com.ludicrus.ludicrus.SportifiedApp;
 
 import org.json.JSONException;
@@ -69,5 +70,41 @@ public class AndroidSoccerMatch extends SoccerMatch
         {
             return false;
         }
+    }
+
+    public String getLogoRequest()
+    {
+        String request = "";
+        boolean requestEmpty = true;
+        if(getHomeTeamLogo() == null || getHomeTeamLogo().equals("null") || getHomeTeamLogo().equals(""))
+        {
+            request += getHomeTeamId() + ";" + EnumSportItemType.TEAM;
+            requestEmpty = false;
+        }
+        if(getAwayTeamLogo() == null || getAwayTeamLogo().equals("null") || getAwayTeamLogo().equals(""))
+        {
+            if(!requestEmpty)
+            {
+                request += ":";
+            }
+            request += getAwayTeamId() + ";" + EnumSportItemType.TEAM;
+        }
+        return request;
+    }
+
+    @Override
+    public String getHomeTeamLogo()
+    {
+        String logo = super.getHomeTeamLogo();
+        //TODO Add logic to check database
+        return logo;
+    }
+
+    @Override
+    public String getAwayTeamLogo()
+    {
+        String logo = super.getAwayTeamLogo();
+        //TODO Add logic to check database
+        return logo;
     }
 }

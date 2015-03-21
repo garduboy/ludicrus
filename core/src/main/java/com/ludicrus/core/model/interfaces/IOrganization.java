@@ -12,5 +12,7 @@ public interface IOrganization {
 	
 	public String getCountry();
 
+    public boolean hasLogo();
+
     public int getOrgType();
 }
