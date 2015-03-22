@@ -1,6 +1,7 @@
 package com.ludicrus.ludicrus.classes;
 
 import com.ludicrus.core.classes.SportsTeam;
+import com.ludicrus.ludicrus.SportifiedApp;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,16 +24,16 @@ public class AndroidSportsTeam extends SportsTeam
 	}
 
     @Override
-    public boolean hasLogo()
-    {
-        boolean hasLogo = false;
-        if(logo == null || logo.equals("") || logo.equals("null"))
-        {
+    public String getLogo() {
+        String logo = super.getLogo();
+        if (logo == null || logo.equals("null") || logo.equals("")) {
             //Check cache
-        } else
-        {
-            hasLogo = true;
+            String dbLogo = SportifiedApp.getOrganizationLogo(getIdOrganization());
+            if (!dbLogo.equals("")) {
+                setLogo(dbLogo);
+                logo = dbLogo;
+            }
         }
-        return hasLogo;
+        return logo;
     }
 }

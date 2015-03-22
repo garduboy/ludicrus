@@ -6,10 +6,14 @@ import org.json.JSONObject;
 import com.facebook.Session;
 import com.ludicrus.ludicrus.parcelable.UserMobile;
 import com.ludicrus.core.util.EnumLoginType;
+import com.ludicrus.ludicrus.storage.model.OrganizationLogo;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class SportifiedApp extends Application{
 
@@ -163,7 +167,7 @@ public class SportifiedApp extends Application{
         editor.clear();
         editor.commit();
 	}
-	
+
 	public void logUser(JSONObject userInfo)
 	{
 		try
@@ -176,27 +180,52 @@ public class SportifiedApp extends Application{
 		    editor.putString("name", (String)userInfo.get("name"));
 		    editor.putString("lastName", (String)userInfo.get("lastName"));
 		    if(userInfo.has("email")) editor.putString("email", (String)userInfo.get("email"));
-		    
+
 		    //TODO Remove this check, it should be required
 		    if(userInfo.has("loginType")) editor.putInt("loginType", (Integer)userInfo.get("loginType"));
-		    
+
 		    // Commit the edits!
 		    editor.commit();
-		    
+
 			createUserInfo();
 		}
 		catch (JSONException je)
 		{
 			je.printStackTrace();
 		}
-    	
+
 	}
 	@Override
 	public void onCreate()
 	{
         appContext = getApplicationContext();
 		createUserInfo();
-
-        // Initialize disk cache on background thread
 	}
+
+    public static void storeOrganizationLogo(int orgId, String logo) {
+
+        Realm realm = Realm.getInstance(appContext);
+        realm.beginTransaction();
+
+        OrganizationLogo orgLogo = realm.createObject(OrganizationLogo.class);
+        orgLogo.setOrgId(orgId);
+        orgLogo.setLogo(logo);
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public static String getOrganizationLogo(int orgId) {
+
+        Realm realm = Realm.getInstance(appContext);
+        RealmResults<OrganizationLogo> orgLogos = realm.where(OrganizationLogo.class).equalTo("orgId", orgId).findAll();
+
+        String logo = "";
+        if(orgLogos.size() > 0) {
+            OrganizationLogo orgLogo = orgLogos.first();
+            logo = orgLogo.getLogo();
+        }
+
+        return logo;
+    }
 }

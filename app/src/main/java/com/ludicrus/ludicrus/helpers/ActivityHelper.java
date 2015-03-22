@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.ludicrus.ludicrus.R;
-import com.ludicrus.ludicrus.login.Login;
+import com.ludicrus.ludicrus.views.login.Login;
 import com.ludicrus.ludicrus.views.MainActivity;
 import com.ludicrus.ludicrus.views.SettingsActivity;
 import com.ludicrus.ludicrus.views.profile.AddFavoriteTeamActivity;

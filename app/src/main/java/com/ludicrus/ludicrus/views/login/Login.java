@@ -1,4 +1,4 @@
-package com.ludicrus.ludicrus.login;
+package com.ludicrus.ludicrus.views.login;
 
 import java.util.Arrays;
 

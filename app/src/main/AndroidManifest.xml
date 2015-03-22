@@ -18,7 +18,7 @@
         android:allowBackup="false"
         android:name="com.ludicrus.ludicrus.SportifiedApp">
         <activity
-            android:name="com.ludicrus.ludicrus.login.Login"
+            android:name=".views.login.Login"
             android:excludeFromRecents="true"
             android:label="@string/app_name"
             android:theme="@style/NoTitleBar" >

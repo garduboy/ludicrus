@@ -1,6 +1,7 @@
 package com.ludicrus.ludicrus.classes;
 
 import com.ludicrus.core.classes.Organization;
+import com.ludicrus.ludicrus.SportifiedApp;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +27,11 @@ public class AndroidOrganization extends Organization
         if(logo == null || logo.equals("") || logo.equals("null"))
         {
             //Check cache
+            String dbLogo = SportifiedApp.getOrganizationLogo(getIdOrganization());
+            if(!dbLogo.equals("")) {
+                setLogo(dbLogo);
+                hasLogo = true;
+            }
         } else
         {
             hasLogo = true;

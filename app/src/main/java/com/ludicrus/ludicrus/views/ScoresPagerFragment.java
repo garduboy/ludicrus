@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 
 import com.ludicrus.ludicrus.R;
+import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.classes.AndroidSoccerMatch;
 import com.ludicrus.ludicrus.classes.ScoresChangeListener;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
@@ -373,6 +374,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
             for (int i = 0; i < logos.length(); i++) {
                 JSONObject obj = (JSONObject) logos.get(i);
                 int orgId = obj.getInt("orgId");
+                String logo = obj.getString("orgLogo");
                 //Update matches to avoid going to database for logos
                 ArrayList<IMatch> matches;
                 for (int j = 0; j < datesRequested.size(); j++) {
@@ -382,13 +384,12 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
                         for (int k = 0; k < matches.size(); k++) {
                             IMatch match = matches.get(k);
                             if (match.containsTeamId(orgId)) {
-                                String logo = obj.getString("orgLogo");
                                 match.setTeamLogo(orgId, logo);
                             }
                         }
                     }
                 }
-                //TODO Store the logo in the DB
+                SportifiedApp.storeOrganizationLogo(orgId, logo);
             }
             initScoresModel();
         } catch (Exception e)

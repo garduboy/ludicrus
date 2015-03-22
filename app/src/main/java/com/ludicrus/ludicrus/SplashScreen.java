@@ -12,7 +12,6 @@ import android.view.View;
 
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
-import com.ludicrus.ludicrus.login.Login;
 import com.ludicrus.ludicrus.util.SystemUiHider;
 
 /**

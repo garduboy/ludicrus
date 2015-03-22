@@ -96,7 +96,14 @@ public class AndroidSoccerMatch extends SoccerMatch
     public String getHomeTeamLogo()
     {
         String logo = super.getHomeTeamLogo();
-        //TODO Add logic to check database
+        if(logo == null || logo.equals("null") || logo.equals("")) {
+            //Check cache
+            String dbLogo = SportifiedApp.getOrganizationLogo(getHomeTeamId());
+            if (!dbLogo.equals("")) {
+                setHomeTeamLogo(dbLogo);
+                logo = dbLogo;
+            }
+        }
         return logo;
     }
 
@@ -104,7 +111,14 @@ public class AndroidSoccerMatch extends SoccerMatch
     public String getAwayTeamLogo()
     {
         String logo = super.getAwayTeamLogo();
-        //TODO Add logic to check database
+        if(logo == null || logo.equals("null") || logo.equals("")) {
+            //Check cache
+            String dbLogo = SportifiedApp.getOrganizationLogo(getAwayTeamId());
+            if (!dbLogo.equals("")) {
+                setAwayTeamLogo(dbLogo);
+                logo = dbLogo;
+            }
+        }
         return logo;
     }
 }
