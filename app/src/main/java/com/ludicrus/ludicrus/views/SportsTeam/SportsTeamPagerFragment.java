@@ -1,5 +1,6 @@
 package com.ludicrus.ludicrus.views.sportsTeam;
 
+import android.content.res.Configuration;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,29 +15,51 @@ import android.widget.ListView;
 
 import com.ludicrus.core.model.interfaces.IMatch;
 import com.ludicrus.ludicrus.R;
+import com.ludicrus.ludicrus.SportifiedApp;
+import com.ludicrus.ludicrus.classes.AndroidSoccerMatch;
+import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
+import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.ludicrus.interfaces.PagerScroller;
 import com.ludicrus.ludicrus.util.MatchAdapter;
 import com.ludicrus.ludicrus.views.ScoresPagerFragment;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
  * Created by jpgarduno on 3/14/15.
  */
-public class SportsTeamPagerFragment extends Fragment implements PagerScroller, OnScrollListener{
+public class SportsTeamPagerFragment extends Fragment implements PagerScroller, OnScrollListener, EventListener{
 
-    private static final String ARG_POSITION = "position";
+    private static final int RESULTS = 0;
+    private static final int CALENDAR = 1;
+    private static final int SQUAD = 2;
+    protected static final String ARG_POSITION = "position";
     private PagerScroller mScrollTabHolder;
-    private ListView mListView;
+    protected ListView mListView;
     private ArrayList<String> mListItems;
-    private int mMinimumHeight;
-    private boolean mExtraSpaceCalculated = false;
+    protected int mMinimumHeight;
+    protected boolean mExtraSpaceCalculated = false;
+    protected View mExtraSpace;
 
-    private int mPosition;
+    protected int mPosition;
+    protected JSONObject  result;
 
     public static Fragment newInstance(int position, int minimumHeight) {
-        SportsTeamPagerFragment f = new SportsTeamPagerFragment();
+        SportsTeamPagerFragment f;
+        switch (position) {
+            case RESULTS:
+                f = new SportsTeamResultsFragment();
+                break;
+            default:
+                f = new SportsTeamPagerFragment();
+                break;
+        }
+
         f.setMinimumHeight(minimumHeight);
         Bundle b = new Bundle();
         b.putInt(ARG_POSITION, position);
@@ -52,6 +75,15 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
     public void setMinimumHeight(int minimumHeight)
     {
         mMinimumHeight = minimumHeight;
+        mExtraSpaceCalculated = false;
+        if(mListView != null)
+            mListView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mListView.setVisibility(View.GONE);
     }
 
     @Override
@@ -69,7 +101,6 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         mPosition = getArguments().getInt(ARG_POSITION);
-
         mListItems = new ArrayList<String>();
 
         for (int i = 1; i <= 100; i++) {
@@ -95,10 +126,17 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
                     int itemCount = mListView.getAdapter().getCount() - 1;
                     int listViewDividerHeight = mListView.getDividerHeight();
                     int listViewHeight = (itemHeight * itemCount) + (listViewDividerHeight * (itemCount - 1));
-                    if (mMinimumHeight > listViewHeight) {
-                        View extraSpace = new View(mListView.getContext());
-                        extraSpace.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, mMinimumHeight - listViewHeight));
-                        mListView.addFooterView(extraSpace);
+                    if (mMinimumHeight > listViewHeight && mListView.getFooterViewsCount() == 0) {
+                        if(mExtraSpace == null) {
+                            mExtraSpace = new View(mListView.getContext());
+                            mExtraSpace.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, mMinimumHeight - listViewHeight));
+                        }
+                        mListView.addFooterView(mExtraSpace);
+                    } else {
+
+                        if(mListView.getFooterViewsCount() > 0 && mExtraSpace != null) {
+                            mListView.removeFooterView(mExtraSpace);
+                        }
                     }
                     mExtraSpaceCalculated = true;
                 }
@@ -111,17 +149,19 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mListView.setOnScrollListener(this);
+        if(mPosition > 0) {  //TODO REMOVE
+            mListView.setOnScrollListener(this);
 
-        MatchAdapter mMatchAdapter = new MatchAdapter(getActivity().getLayoutInflater());
+            MatchAdapter mMatchAdapter = new MatchAdapter(getActivity().getLayoutInflater());
 
-        List<IMatch> matchList = ScoresPagerFragment.matchList.get("2015-03-14");
-        for (int i = 0; i < matchList.size(); i++) {
-            IMatch match = matchList.get(i);
-            mMatchAdapter.addItem(match);
+            List<IMatch> matchList = ScoresPagerFragment.matchList.get("2015-03-14");
+            for (int i = 0; i < matchList.size(); i++) {
+                IMatch match = matchList.get(i);
+                mMatchAdapter.addItem(match);
+            }
+
+            mListView.setAdapter(mMatchAdapter);
         }
-
-        mListView.setAdapter(mMatchAdapter);
     }
 
     @Override
@@ -150,5 +190,10 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         // nothing
+    }
+
+    public void setJSONObject(JSONObject json)
+    {
+
     }
 }

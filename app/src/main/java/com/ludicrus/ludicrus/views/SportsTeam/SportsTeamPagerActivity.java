@@ -1,6 +1,7 @@
 package com.ludicrus.ludicrus.views.sportsTeam;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -18,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AbsListView;
@@ -55,8 +57,7 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
     private TextView    mTeamName;
     private Toolbar     mToolbar;
     private ViewPager   mViewPager;
-    //    private SpannableString mSpannableString;
-//    private AlphaForegroundColorSpan mAlphaForegroundColorSpan;
+    private float       mRatio = -1;
 
 
     private JSONObject  result;
@@ -74,19 +75,23 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
         return Math.max(Math.min(value, min), max);
     }
 
-    private void interpolate(View view1, View view2, float interpolation) {
+    private void interpolate(View view1, View view2, float interpolation, boolean scale) {
         getOnScreenRect(mRect1, view1);
         getOnScreenRect(mRect2, view2);
 
-        float scaleX = 1.0F + interpolation * (mRect2.width() / mRect1.width() - 1.0F);
-        float scaleY = 1.0F + interpolation * (mRect2.height() / mRect1.height() - 1.0F);
+        if(scale) {
+            float scaleX = 1.0F + interpolation * (mRect2.width() / mRect1.width() - 1.0F);
+            float scaleY = 1.0F + interpolation * (mRect2.height() / mRect1.height() - 1.0F);
+            view1.setScaleX(scaleX);
+            view1.setScaleY(scaleY);
+        }
+
         float translationX = 0.5F * (interpolation * (mRect2.left + mRect2.right - mRect1.left - mRect1.right));
         float translationY = 0.5F * (interpolation * (mRect2.top + mRect2.bottom - mRect1.top - mRect1.bottom));
-
         view1.setTranslationX(translationX);
-        view1.setTranslationY(translationY - mHeader.getTranslationY());
-        view1.setScaleX(scaleX);
-        view1.setScaleY(scaleY);
+        view1.setTranslationY(translationY);
+
+        mRatio = interpolation;
     }
 
     public int getActionBarHeight() {
@@ -150,6 +155,41 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        ViewTreeObserver vto = mToolbar.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mToolbar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                if(mRatio > 0) {
+                    ImageView iconView = (ImageView) findViewById(R.id.toolbar_logo);
+                    interpolate(mHeaderLogo, iconView, mRatio, true);
+                    TextView toolbarText = (TextView) findViewById(R.id.toolbar_team_name);
+                    interpolate(mTeamName, toolbarText, mRatio, false);
+                }
+                //Recalculate list view extra space
+                mPagerAdapter.setAvailableSpace(getScreenAvailableHeight());
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -180,8 +220,7 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
         FrameLayout root = (FrameLayout)findViewById(R.id.sports_team_layout);
         root.post(new Runnable() {
             public void run() {
-                mPagerAdapter.setAvailableSpace(getScreenAvailableHeight());
-                //setListAdapter(getScreenAvailableHeight());
+            mPagerAdapter.setAvailableSpace(getScreenAvailableHeight());
             }
         });
 
@@ -189,22 +228,13 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
         Intent intent = getIntent();
         mTeamName.setText(intent.getStringExtra("sportsTeamName"));
         mTeamName.setTypeface(AssetsHelper.getTypeFace(this, EnumTypeface.QUICKSAND));
-        long teamId = intent.getLongExtra("sportsTeamId", 0);
+        mTeamName.setVisibility(View.INVISIBLE);
+        int teamId = (int)intent.getLongExtra("sportsTeamId", 0);
         RestClientHelper.getSportsTeamDetails(this, String.valueOf(teamId));
-
-//        mSpannableString = new SpannableString(getString(R.string.actionbar_title));
-//        mAlphaForegroundColorSpan = new AlphaForegroundColorSpan(0xffffffff);
-
-//        findViewById(android.R.id.home).setAlpha(0f);
 
         mActionBarBackgroundDrawable = mToolbar.getBackground();
         mActionBarBackgroundDrawable.setAlpha(0);
         setTitle("");
-    }
-
-    private void setListAdapter(int screenHeight)
-    {
-
     }
 
     @Override
@@ -227,11 +257,11 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
         }
     }
 
-    private void parallaxImage(View view) {
+    private float parallaxImage(View view) {
+        float ratio = 0;
         if(view != null)
         {
             int headerHeight = mHeaderBackground.getHeight() - mSlidingTabLayout.getHeight() - getActionBarHeight();
-            float ratio = 0;
             float headerViewTop = -(mHeader.getTranslationY());
             if (lastTopValueAssigned != headerViewTop) {
                 lastTopValueAssigned = headerViewTop;
@@ -248,6 +278,7 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
                 mActionBarBackgroundDrawable.setAlpha(newAlpha);
             }
         }
+        return ratio;
     }
 
     @Override
@@ -256,24 +287,24 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
             int scrollY = getScrollY(view);
             int headerTranslation = -(mHeaderBackground.getHeight() - mSlidingTabLayout.getHeight() - getActionBarHeight());
             mHeader.setTranslationY(Math.max(-scrollY, headerTranslation));
-//            float ratio = clamp(mHeader.getTranslationY() / mMinHeaderTranslation, 0.0f, 1.0f);
-//            ImageView iconView = (ImageView) findViewById(android.support.v7.appcompat.R.id.home);
-//            interpolate(mHeaderLogo, iconView, sSmoothInterpolator.getInterpolation(ratio));
-//            setTitleAlpha(clamp(5.0F * ratio - 4.0F, 0.0F, 1.0F));
-            parallaxImage(mHeaderBackground);
+
+            float ratio = parallaxImage(mHeaderBackground);
+            if(ratio > 0) {
+                ImageView iconView = (ImageView) findViewById(R.id.toolbar_logo);
+                interpolate(mHeaderLogo, iconView, sSmoothInterpolator.getInterpolation(ratio), true);
+                TextView toolbarText = (TextView) findViewById(R.id.toolbar_team_name);
+                interpolate(mTeamName, toolbarText, sSmoothInterpolator.getInterpolation(ratio), false);
+            }
         }
     }
 
-    private void populateTeamInfo(JSONObject sportsTeam)
-    {
-        try
-        {
-            IOrganization organization = new AndroidSportsTeam((JSONObject) sportsTeam);
+    private void populateTeamInfo(JSONObject sportsTeam) {
+        try {
+            IOrganization organization = new AndroidSportsTeam(sportsTeam);
             Bitmap teamLogo = OrganizationLogoRenderer.getMaskedOrganizationLogo(organization.getLogo(), this);
             mHeaderLogo.setImageBitmap(teamLogo);
-
-        } catch (Exception e)
-        {
+            mTeamName.setVisibility(View.VISIBLE);
+        } catch (Exception e) {
 
         }
 
@@ -299,12 +330,6 @@ public class SportsTeamPagerActivity extends ActionBarActivity implements PagerS
             e.printStackTrace();
         }
 
-    }
-
-    private void setTitleAlpha(float alpha) {
-//        mAlphaForegroundColorSpan.setAlpha(alpha);
-//        mSpannableString.setSpan(mAlphaForegroundColorSpan, 0, mSpannableString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        getSupportActionBar().setTitle(mSpannableString);
     }
 
     public class PagerAdapter extends FragmentPagerAdapter {

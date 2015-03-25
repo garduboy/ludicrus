@@ -2,6 +2,7 @@ package com.ludicrus.ludicrus.helpers.network;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import android.text.format.DateFormat;
 
@@ -140,6 +141,17 @@ public class RestClientHelper
         RestClient restClient = new RestClient(server + "/loadTeamDetails.do", 0);
         restClient.AddParam("action", "loadTeamDetails");
         restClient.AddParam("teamId", teamId);
+        restClient.setListener(listener);
+        restClient.execute();
+    }
+
+    public static final void getTeamResults(Integer teamId, int noOfResults, Date fromDate, EventListener listener)
+    {
+        RestClient restClient = new RestClient(server + "/loadTeamResults.do", 0);
+        restClient.AddParam("action", "loadTeamResults");
+        restClient.AddParam("lastDate", DateFormat.format("yyyy-MM-dd", fromDate.getTime()).toString());
+        restClient.AddParam("teamId", String.valueOf(teamId));
+        restClient.AddParam("noOfResults", String.valueOf(noOfResults));
         restClient.setListener(listener);
         restClient.execute();
     }
