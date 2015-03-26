@@ -37,20 +37,14 @@ public class SportsTeamResultsFragment extends SportsTeamPagerFragment{
     private boolean mAutoIncrement = false;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mPosition = getArguments().getInt(ARG_POSITION);
-        mTeamId = (int)getActivity().getIntent().getLongExtra("sportsTeamId", 0);
+        mTeamId = getArguments().getInt("sportsTeamId");
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, 1);
         RestClientHelper.getTeamResults(mTeamId, 20, calendar.getTime(), this);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
     }
 
     private void processIcons()

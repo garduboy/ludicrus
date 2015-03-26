@@ -1,85 +1,292 @@
 package com.ludicrus.ludicrus.views;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.view.Menu;
-import android.view.MenuItem;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+import org.json.JSONObject;
+
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar.OnNavigationListener;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ExpandableListView;
+
+import com.ludicrus.core.model.interfaces.IOrganization;
+import com.ludicrus.core.model.interfaces.ISportsTeam;
+import com.ludicrus.core.util.EnumSportItemType;
+import com.ludicrus.core.util.EnumSportType;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
+import com.ludicrus.ludicrus.helpers.FavoriteTeamHelper;
+import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
+import com.ludicrus.ludicrus.parcelable.UserMobile;
+import com.ludicrus.ludicrus.interfaces.AppEvent;
 import com.ludicrus.ludicrus.util.EnumNavAction;
+import com.ludicrus.ludicrus.util.ExpandableListAdapter;
+import com.ludicrus.ludicrus.util.TypefaceSpan;
+import com.ludicrus.ludicrus.views.profile.ProfileFragment;
+import com.ludicrus.ludicrus.views.sportsTeam.SportsTeamMainFragment;
 
-public class MainActivity extends SpinnerActivity{
+public class MainActivity extends BaseActivity implements AppEvent {
+	protected OnNavigationListener navigationListener;
+	private boolean initialized = false;
+	private DrawerLayout mDrawerLayout;
+	private ExpandableListView mDrawerList;
+	private ActionBarDrawerToggle mDrawerToggle;
+	private CharSequence mTitle;
+	ScoresPagerFragment scores;
+	ProfileFragment profile;
+    SportsTeamMainFragment mTeam;
+    private Toolbar mainToolbar;
+	private JSONObject result;
+	
+	public void addFavoriteTeam(View view)
+	{
+		Intent intent = ActivityHelper.startAddFavoriteTeamsActivity(this);
+		startActivity(intent);
+	}
 
-    private boolean getDisplayFavorites()
+    public void eventNotification()
     {
-        SharedPreferences settings = getSharedPreferences(SportifiedApp.PREFS_NAME, MODE_PRIVATE);
-        boolean favorites = settings.getBoolean(SportifiedApp.PREFS_DISPLAY_FAVORITES, true);
-
-        return favorites;
+        setupNavigationDrawer();
     }
 
-    private void setDisplayFavorites(boolean value)
-    {
-        SharedPreferences settings = getSharedPreferences(SportifiedApp.PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(SportifiedApp.PREFS_DISPLAY_FAVORITES, value);
-        editor.commit();
+    public void resetMainToolbar() {
+        setSupportActionBar(mainToolbar);
+        syncDrawerToggle();
+    }
+
+    public void syncDrawerToggle() {
+        mDrawerToggle.syncState();
     }
 
 	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.scores_pager_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu)
-    {
-        MenuItem favoritesItem = menu.findItem(R.id.favorites);
-        toggleFavoritesIcon(getDisplayFavorites(), favoritesItem);
-        return super.onPrepareOptionsMenu(menu);
-    }
+        SportifiedApp sportApp = (SportifiedApp)getApplicationContext();
+        UserMobile user = sportApp.getUser();
+        //Setting the adapter dynamically
+        RestClientHelper.getUserFavTeams(user.getIdUser(), this);
+
+        setContentView(R.layout.main_activity);
+        mTitle = getString(R.string.title_activity_scores);
+
+        mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
+        setSupportActionBar(mainToolbar);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ExpandableListView) findViewById(R.id.left_drawer);
+
+        final AppEvent callback = this;
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.string.app_name,  /* "open drawer" description */
+                R.string.title_activity_user_home  /* "close drawer" description */
+                ) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                setTitle(mTitle);
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+
+                //Favorite teams might have changed so let's reload
+                setupNavigationDrawer();
+            }
+        };
+        
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        
+        //Dynamically add the scores fragment
+		FragmentTransaction ft;
+		scores = new ScoresPagerFragment();
+	    ft = getSupportFragmentManager().beginTransaction();
+	    //Should be add, let's find out where do we need to remove it when the configuration changes
+	    ft.replace(R.id.mainContent, scores, mTitle.toString());
+	    ft.commit();
+        setTitle(mTitle);
+	}
 
 	@Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        String[] strings;
-        ScoresPagerFragment scoresFragment;
-    	// Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.calendar:
-            	strings = getResources().getStringArray(R.array.action_list);
-                scoresFragment = (ScoresPagerFragment) getSupportFragmentManager().findFragmentByTag(strings[EnumNavAction.NAVIGATION_SCORES]);
-            	scoresFragment.onCalendarClick();
-                return true;
-            case R.id.favorites:
-                //Store the favorites display option at app level
-                boolean favorites = !getDisplayFavorites();
-                setDisplayFavorites(favorites);
-                toggleFavoritesIcon(getDisplayFavorites(), item);
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
 
-                //Update the interface to display favorites/all
-                strings = getResources().getStringArray(R.array.action_list);
-                scoresFragment = (ScoresPagerFragment) getSupportFragmentManager().findFragmentByTag(strings[EnumNavAction.NAVIGATION_SCORES]);
-                scoresFragment.toggleFavorites();
-                return true;
-            case R.id.menu_settings:
-            	Intent intent = ActivityHelper.startSettingsActivity(this);
-    	    	startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
+	
+	@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Pass the event to ActionBarDrawerToggle, if it returns
+        // true, then it has handled the app icon touch event
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+          return true;
+        }
+        // Handle your other action bar items...
 
-    private void toggleFavoritesIcon(boolean displayFavorites, MenuItem item)
-    {
-        if(displayFavorites) {
-            item.setIcon(R.drawable.star_full);
-        } else {
-            item.setIcon(R.drawable.star_empty);
-        }
+        return super.onOptionsItemSelected(item);
     }
+	
+	private void setupNavigationDrawer()
+	{
+		try
+		{
+			String[] navItems = getResources().getStringArray(R.array.action_list);
+			ArrayList<String> headers = new ArrayList<String>();
+			HashMap<String, List<Object>> listDataChild = new HashMap<String, List<Object>>();
+
+            ArrayList<IOrganization> favTeams = FavoriteTeamHelper.getFavoriteTeams();
+
+			for(int i = 0; i < navItems.length; i++)
+			{
+				String navItem = navItems[i];
+				List<Object> subItems = new ArrayList<Object>();
+				if(navItem.equals(getString(R.string.title_activity_myTeams)))
+				{
+					if(favTeams.size() > 0)
+						subItems = new ArrayList<Object>();
+					
+					for(int j = 0; j < favTeams.size(); j++)
+					{
+						IOrganization org = (IOrganization)favTeams.get(j);
+						subItems.add(org);//org.getName() + "::" + org.getIdOrganization());
+					}
+				}
+				headers.add(navItem);
+				listDataChild.put(navItem, subItems);
+			}
+			
+	        // Set the adapter for the list view
+	        mDrawerList.setAdapter(new ExpandableListAdapter(this, headers, listDataChild));
+	        mDrawerList.setGroupIndicator(null);
+	        
+	        // Set the list's click listener
+	        mDrawerList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+	        	@Override
+	    	    public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
+                    selectItem(groupPosition, childPosition, id);
+	    	        return true;
+	    	    }
+	        });
+	        
+	        mDrawerList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+				
+				@Override
+				public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+					selectItem(groupPosition, -1, 0);
+					return false;
+				}
+			});
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void setTitle(CharSequence title) {
+		mTitle = title;
+        SpannableString s = new SpannableString(mTitle);
+        s.setSpan(new TypefaceSpan(this, "LobsterTwo-Regular.ttf"), 0, s.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		getSupportActionBar().setTitle(s);
+	}
+
+	/** Swaps fragments in the main content view */
+	private void selectItem(int groupPosition, int childPosition, long id) {
+
+		// Get the same strings provided for the drop-down's ArrayAdapter
+    	String[] strings = getResources().getStringArray(R.array.action_list);
+		Intent intent;
+		FragmentTransaction ft;
+		switch(groupPosition) {
+		case EnumNavAction.NAVIGATION_SCORES:
+			//Scores
+			// Create new fragment from our own Fragment class
+//			if(scores == null)
+				scores = new ScoresPagerFragment();
+		    ft = getSupportFragmentManager().beginTransaction();
+		    // Replace whatever is in the fragment container with this fragment
+		    // and give the fragment a tag name equal to the string at the position selected
+		    ft.replace(R.id.mainContent, scores, strings[groupPosition]);
+		    // Apply changes
+		    ft.commit();
+			break;
+		case EnumNavAction.NAVIGATION_PROFILE:
+			//Profile
+//			if(profile == null)
+				profile = new ProfileFragment();
+			ft = getSupportFragmentManager().beginTransaction();
+			ft.replace(R.id.mainContent, profile, strings[groupPosition]);
+		    // Apply changes
+		    ft.commit();
+			break;
+		case EnumNavAction.NAVIGATION_MY_TEAMS:
+			//My Teams
+            if(childPosition >= 0) {
+                ArrayList<IOrganization> favTeams = FavoriteTeamHelper.getFavoriteTeams();
+                IOrganization team = null;
+                for(int i = 0; i < favTeams.size(); i++) {
+                    if(favTeams.get(i).getIdOrganization() == id) {
+                        team = favTeams.get(i);
+                    }
+                }
+                if(team != null) {
+                    if(team.getOrgType() == EnumSportItemType.TEAM) {
+                        try {
+                            ISportsTeam sportsTeam = (ISportsTeam)team;
+                            if(sportsTeam.getSportType() == EnumSportType.SOCCER) {
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("sportsTeamId", sportsTeam.getIdTeam());
+                                bundle.putString("sportsTeamName", sportsTeam.getName());
+                                mTeam = new SportsTeamMainFragment();
+                                mTeam.setArguments(bundle);
+                                ft = getSupportFragmentManager().beginTransaction();
+                                ft.replace(R.id.mainContent, mTeam, "");
+                                // Apply changes
+                                ft.commit();
+                            }
+                        }
+                        catch (Exception e){
+
+                        }
+                    }
+                }
+            } else {
+                return;
+            }
+			break;
+		}
+	    // Highlight the selected item, update the title, and close the drawer
+	    mDrawerList.setItemChecked(groupPosition, true);
+	    setTitle(strings[groupPosition]);
+	    mDrawerLayout.closeDrawer(mDrawerList);
+	}
 }

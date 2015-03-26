@@ -9,25 +9,17 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.ludicrus.core.model.interfaces.IMatch;
 import com.ludicrus.ludicrus.R;
-import com.ludicrus.ludicrus.SportifiedApp;
-import com.ludicrus.ludicrus.classes.AndroidSoccerMatch;
-import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.ludicrus.interfaces.PagerScroller;
 import com.ludicrus.ludicrus.util.MatchAdapter;
 import com.ludicrus.ludicrus.views.ScoresPagerFragment;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -49,7 +41,7 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
     protected int mPosition;
     protected JSONObject  result;
 
-    public static Fragment newInstance(int position, int minimumHeight) {
+    public static Fragment newInstance(int position, int teamId, int minimumHeight) {
         SportsTeamPagerFragment f;
         switch (position) {
             case RESULTS:
@@ -63,13 +55,9 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
         f.setMinimumHeight(minimumHeight);
         Bundle b = new Bundle();
         b.putInt(ARG_POSITION, position);
+        b.putInt("sportsTeamId", teamId);
         f.setArguments(b);
         return f;
-    }
-
-    public SportsTeamPagerFragment()
-    {
-        super();
     }
 
     public void setMinimumHeight(int minimumHeight)
@@ -97,19 +85,14 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mPosition = getArguments().getInt(ARG_POSITION);
         mListItems = new ArrayList<String>();
 
         for (int i = 1; i <= 100; i++) {
             mListItems.add(i + ". item - currnet page: " + (mPosition + 1));
         }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mListView = new ListView(container.getContext());
 
         View placeHolderView = inflater.inflate(R.layout.sports_team_header, mListView, false);
@@ -119,35 +102,35 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
         mListView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(mMinimumHeight > 0 && !mExtraSpaceCalculated) {
-                    int headerHeight = getResources().getDimensionPixelSize(R.dimen.header_height);
-                    View itemView = mListView.getChildAt(1);
-                    int itemHeight = itemView.getHeight();
-                    int itemCount = mListView.getAdapter().getCount() - 1;
-                    int listViewDividerHeight = mListView.getDividerHeight();
-                    int listViewHeight = (itemHeight * itemCount) + (listViewDividerHeight * (itemCount - 1));
-                    if (mMinimumHeight > listViewHeight && mListView.getFooterViewsCount() == 0) {
-                        if(mExtraSpace == null) {
-                            mExtraSpace = new View(mListView.getContext());
-                            mExtraSpace.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, mMinimumHeight - listViewHeight));
-                        }
-                        mListView.addFooterView(mExtraSpace);
-                    } else {
-
-                        if(mListView.getFooterViewsCount() > 0 && mExtraSpace != null) {
-                            mListView.removeFooterView(mExtraSpace);
-                        }
+            if(mMinimumHeight > 0 && !mExtraSpaceCalculated) {
+                int headerHeight = getResources().getDimensionPixelSize(R.dimen.header_height);
+                View itemView = mListView.getChildAt(1);
+                int itemHeight = itemView.getHeight();
+                int itemCount = mListView.getAdapter().getCount() - 1;
+                int listViewDividerHeight = mListView.getDividerHeight();
+                int listViewHeight = (itemHeight * itemCount) + (listViewDividerHeight * (itemCount - 1));
+                if (mMinimumHeight > listViewHeight && mListView.getFooterViewsCount() == 0) {
+                    if(mExtraSpace == null) {
+                        mExtraSpace = new View(mListView.getContext());
+                        mExtraSpace.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, mMinimumHeight - listViewHeight));
                     }
-                    mExtraSpaceCalculated = true;
+                    mListView.addFooterView(mExtraSpace);
+                } else {
+
+                    if(mListView.getFooterViewsCount() > 0 && mExtraSpace != null) {
+                        mListView.removeFooterView(mExtraSpace);
+                    }
                 }
+                mExtraSpaceCalculated = true;
+            }
             }
         });
         return mListView;
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         if(mPosition > 0) {  //TODO REMOVE
             mListView.setOnScrollListener(this);
@@ -168,6 +151,13 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
     public void onStart()
     {
         super.onStart();
+
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
 
     }
 

@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -28,6 +29,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +44,7 @@ import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.core.model.interfaces.IMatch;
+import com.ludicrus.ludicrus.util.EnumNavAction;
 import com.ludicrus.ludicrus.util.MatchAdapter;
 import com.viewpagerindicator.TitlePageIndicator;
 
@@ -89,17 +93,32 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     
     Object callback;
     private SwipeRefreshLayout.OnRefreshListener refreshListener;
-	
-    private void createCallbacks()
-    {
+
+    private void addDateRequest(String date, int offset) {
+        try {
+            Calendar cal = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            cal.setTime(sdf.parse(date));
+            for (int i = 0; i <= offset; i++) {
+                if (!datesRequested.contains(date)) {
+                    datesRequested.add(date);
+                }
+                cal.add(Calendar.DATE, 1);
+                date = sdf.format(cal.getTime());
+            }
+        } catch (ParseException pe) {
+            pe.printStackTrace();
+        }
+    }
+
+    private void createCallbacks() {
         refreshListener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 refreshPageModel();
             }
         };
-    	if(Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    	{
+    	if(Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
     		callback = new mirko.android.datetimepicker.date.DatePickerDialog.OnDateSetListener()
     		{
     			@Override
@@ -110,8 +129,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 
     		};
     	}
-    	else
-    	{
+    	else {
     		callback = new android.app.DatePickerDialog.OnDateSetListener()
     		{
     			@Override
@@ -124,36 +142,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     	}
     }
 
-    private void addDateRequest(String date, int offset)
-    {
-        try {
-            Calendar cal = Calendar.getInstance();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            cal.setTime(sdf.parse(date));
-            for (int i = 0; i <= offset; i++) {
-                if (!datesRequested.contains(date))
-                {
-                    datesRequested.add(date);
-                }
-                cal.add(Calendar.DATE, 1);
-                date = sdf.format(cal.getTime());
-            }
-        } catch (ParseException pe)
-        {
-            pe.printStackTrace();
-        }
-    }
-
-    private void refreshPageModel()
-    {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(mPageModel[PAGE_MIDDLE].getDate());
-        mPageModel[PAGE_MIDDLE].setWaiting(true);
-        RestClientHelper.getFixtures(calendar, 0, this);
-    }
-
-    private void createOnDateSet(int year, int monthOfYear, int dayOfMonth)
-    {
+    private void createOnDateSet(int year, int monthOfYear, int dayOfMonth) {
     	Calendar calendarSelected = Calendar.getInstance();
         Calendar currentCalendar = Calendar.getInstance();
         calendarSelected.set(year, monthOfYear, dayOfMonth, 0,0,0);
@@ -179,8 +168,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     	System.out.println("Selected" + pageDate);
         while(!((currentCalendar.get(Calendar.YEAR) == calendarSelected.get(Calendar.YEAR)) &&
         		(currentCalendar.get(Calendar.MONTH) == calendarSelected.get(Calendar.MONTH)) &&
-        		(currentCalendar.get(Calendar.DATE) == calendarSelected.get(Calendar.DATE))))
-        {
+        		(currentCalendar.get(Calendar.DATE) == calendarSelected.get(Calendar.DATE)))) {
         	currentCalendar.add(Calendar.DATE, increment);
         	difference++;
         	date = currentCalendar.getTime();
@@ -192,20 +180,23 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
         loadDate(calendarSelected, difference);
     }
 
-	private void loadDate(Calendar calendar, int difference)
-	{
+    private boolean getDisplayFavorites() {
+        SharedPreferences settings = getActivity().getSharedPreferences(SportifiedApp.PREFS_NAME, Context.MODE_PRIVATE);
+        boolean favorites = settings.getBoolean(SportifiedApp.PREFS_DISPLAY_FAVORITES, true);
+
+        return favorites;
+    }
+
+	private void loadDate(Calendar calendar, int difference) {
 		mTitleIndicator.invalidate();
 		mPager.invalidate();
-		for(int i = PAGE_LEFT; i <= PAGE_RIGHT; i++)
-    	{
+		for(int i = PAGE_LEFT; i <= PAGE_RIGHT; i++) {
     		mPageModel[i].setIndex((difference - 2) + i);
     		String pageDate = DateFormat.format("yyyy-MM-dd", mPageModel[i].getDate()).toString();
-    		if(matchList.containsKey(pageDate))
-			{
+    		if(matchList.containsKey(pageDate)) {
     			mPageModel[i].loadAdapter();
 			}
-    		else
-    		{
+    		else {
 	    		mPageModel[i].setMatchAdapter(null);
 	    		mPageModel[i].setWaiting(true);
     		}
@@ -218,10 +209,8 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     	mCurrentIndex = mPageModel[PAGE_MIDDLE].getIndex();
 	}
 	
-	public void onCalendarClick()
-	{
-		try
-		{
+	public void onCalendarClick() {
+		try {
 			Calendar myCalendar = Calendar.getInstance();
 	    	myCalendar.setTime(mPageModel[PAGE_MIDDLE].getDate());
 	    	String tag = "";
@@ -230,23 +219,107 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 	    	else
 	    		new android.app.DatePickerDialog(getActivity(), (android.app.DatePickerDialog.OnDateSetListener)callback, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH)).show();
 		}
-		catch(Exception e)
-		{
+		catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.scores_pager_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
-	{ 
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.screen_slide, container, false); 
 	}
-	
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.calendar:
+                Calendar myCalendar = Calendar.getInstance();
+                myCalendar.setTime(mPageModel[PAGE_MIDDLE].getDate());
+                String tag = "";
+                if(Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    mirko.android.datetimepicker.date.DatePickerDialog.newInstance((mirko.android.datetimepicker.date.DatePickerDialog.OnDateSetListener)callback, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH)).show(getActivity().getFragmentManager(), tag);
+                else
+                    new android.app.DatePickerDialog(getActivity(), (android.app.DatePickerDialog.OnDateSetListener)callback, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                return true;
+            case R.id.favorites:
+                //Store the favorites display option at app level
+                boolean favorites = !getDisplayFavorites();
+                setDisplayFavorites(favorites);
+                toggleFavoritesIcon(getDisplayFavorites(), item);
+
+                //Update the interface to display favorites/all
+                toggleFavorites();
+                return true;
+            case R.id.menu_settings:
+                Intent intent = ActivityHelper.startSettingsActivity(getActivity());
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void onPageScrollStateChanged(int state) {
+        shootSound();
+        if (state == ViewPager.SCROLL_STATE_IDLE) {
+            Calendar calendar = Calendar.getInstance();
+            if (mSelectedPageIndex < PAGE_MIDDLE) {
+                calendar.setTime(mPageModel[PAGE_LEFT].getDate());
+                mPageModel[PAGE_LEFT].setWaiting(true);
+            }
+            else if (mSelectedPageIndex > PAGE_MIDDLE) {
+                calendar.setTime(mPageModel[PAGE_RIGHT].getDate());
+                mPageModel[PAGE_RIGHT].setWaiting(true);
+            }
+            for(int i = PAGE_LEFT; i <= PAGE_RIGHT; i++) {
+                ScoresFragment tempPage;
+                int index;
+                // user swiped to right direction --> left page
+                if (mSelectedPageIndex < PAGE_MIDDLE) {
+                    tempPage = mPageModel[(NUM_PAGES - 1) - i];
+                    index = tempPage.getIndex();
+                    tempPage.setIndex(index - 1);
+                    setContent((NUM_PAGES - 1) - i);
+                }
+                // user swiped to left direction --> right page
+                else if (mSelectedPageIndex > PAGE_MIDDLE) {
+                    tempPage = mPageModel[i];
+                    index = tempPage.getIndex();
+                    tempPage.setIndex(index + 1);
+                    setContent(i);
+                }
+            }
+            RestClientHelper.getFixtures(calendar, 0, this);
+            mPager.setCurrentItem(PAGE_MIDDLE, false);
+            mCurrentIndex = mPageModel[PAGE_MIDDLE].getIndex();
+        }
+    }
+
+    public void onPageSelected(int position) {
+        mSelectedPageIndex = position;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem favoritesItem = menu.findItem(R.id.favorites);
+        toggleFavoritesIcon(getDisplayFavorites(), favoritesItem);
+        super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
         
     	super.onViewCreated(view, savedInstanceState);
-    	
+
+        setHasOptionsMenu(true);
+
         initialized = false;
 
         createCallbacks();
@@ -274,7 +347,6 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
         calendar.add(Calendar.DATE, -1);
         RestClientHelper.getFixtures(calendar, 2, this);
         handler.postDelayed(refreshRate, delay);
-        
     }
 
     final Handler handler = new Handler();
@@ -303,72 +375,8 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 //            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
 //        }
 //    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-    	// Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.calendar:
-            	Calendar myCalendar = Calendar.getInstance();
-            	myCalendar.setTime(mPageModel[PAGE_MIDDLE].getDate());
-            	String tag = "";
-            	if(Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-            		mirko.android.datetimepicker.date.DatePickerDialog.newInstance((mirko.android.datetimepicker.date.DatePickerDialog.OnDateSetListener)callback, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH)).show(getActivity().getFragmentManager(), tag);
-            	else
-            		new android.app.DatePickerDialog(getActivity(), (android.app.DatePickerDialog.OnDateSetListener)callback, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-                return true;
-            case R.id.menu_settings:
-            	Intent intent = ActivityHelper.startSettingsActivity(getActivity());
-    	    	startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    
-    private void processLiveScores()
-    {
-    	try
-    	{
-    		//TODO MOve this code to a common function
-    		JSONArray items = (JSONArray)result.get("items");
-    		IMatch match;
-    		for(int i = 0; i < items.length(); i++)
-    		{
-    			JSONObject itemMap = (JSONObject)items.get(i);
-    			match = new AndroidSoccerMatch((JSONObject)itemMap.get("matches"));
-    			ArrayList<IMatch> matches;
-    			if(matchList.containsKey(match.getDate()))
-				{
-    				matches = matchList.get(match.getDate());
-    				for(int j = 0; j < matches.size(); j++)
-    				{
-    					if(match.getIdMatch().equals(matches.get(j).getIdMatch()))
-    					{
-    						matches.remove(j);
-    						break;
-    					}
-    				}
-					matches.add(match);
-				}
-    			else
-    			{
-    				matches = new ArrayList<IMatch>();
-    				matches.add(match);
-    				matchList.put(match.getDate(), matches);
-    			}
-    		}
-    		mPageModel[PAGE_MIDDLE].loadAdapter();
-    	}
-    	catch(Exception e)
-    	{
-    		e.printStackTrace();
-    	}
-	}
 
-    private void processIcons()
-    {
+    private void processIcons() {
         try {
             JSONArray logos = (JSONArray) result.get("icons");
             for (int i = 0; i < logos.length(); i++) {
@@ -392,16 +400,45 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
                 SportifiedApp.storeOrganizationLogo(orgId, logo);
             }
             initScoresModel();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void processResult()
-    {
-    	try
-    	{
+    private void processLiveScores() {
+        try {
+            //TODO MOve this code to a common function
+            JSONArray items = (JSONArray)result.get("items");
+            IMatch match;
+            for(int i = 0; i < items.length(); i++) {
+                JSONObject itemMap = (JSONObject)items.get(i);
+                match = new AndroidSoccerMatch((JSONObject)itemMap.get("matches"));
+                ArrayList<IMatch> matches;
+                if(matchList.containsKey(match.getDate())) {
+                    matches = matchList.get(match.getDate());
+                    for(int j = 0; j < matches.size(); j++) {
+                        if(match.getIdMatch().equals(matches.get(j).getIdMatch())) {
+                            matches.remove(j);
+                            break;
+                        }
+                    }
+                    matches.add(match);
+                }
+                else {
+                    matches = new ArrayList<IMatch>();
+                    matches.add(match);
+                    matchList.put(match.getDate(), matches);
+                }
+            }
+            mPageModel[PAGE_MIDDLE].loadAdapter();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void processResult() {
+    	try {
             JSONArray items = (JSONArray) result.get("items");
             String startDate = (String)result.get("startDate");
             int offset = (int)result.get("offset");
@@ -438,184 +475,67 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
                 initScoresModel();
             }
     	}
-    	catch(Exception e)
-    	{
+    	catch(Exception e) {
     		e.printStackTrace();
     	}
     }
     
-    public void onPageSelected(int position)
-    {
-	    mSelectedPageIndex = position;
-	}
-    
-    public void shootSound()
-    {
+    public void shootSound() {
         AudioManager meng = (AudioManager) this.getActivity().getSystemService(Context.AUDIO_SERVICE);
         int volume = meng.getStreamVolume( AudioManager.STREAM_NOTIFICATION);
 
-        if (volume != 0)
-        {
+        if (volume != 0) {
             if (_shootMP == null)
                 _shootMP = MediaPlayer.create(this.getActivity(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
             if (_shootMP != null)
                 _shootMP.start();
         }
     }
-    
-    public void onPageScrollStateChanged(int state) {
-    	shootSound();
-	    if (state == ViewPager.SCROLL_STATE_IDLE)
-	    {
-	    	Calendar calendar = Calendar.getInstance();
-	    	if (mSelectedPageIndex < PAGE_MIDDLE)
-		    {
-		    	calendar.setTime(mPageModel[PAGE_LEFT].getDate());
-		    	mPageModel[PAGE_LEFT].setWaiting(true);
-		    }
-	    	else if (mSelectedPageIndex > PAGE_MIDDLE)
-	     	{
-	     		calendar.setTime(mPageModel[PAGE_RIGHT].getDate());
-	     		mPageModel[PAGE_RIGHT].setWaiting(true);
-	     	}
-	    	for(int i = PAGE_LEFT; i <= PAGE_RIGHT; i++)
-	    	{
-	    		ScoresFragment tempPage;
-	    		int index;
-	    		// user swiped to right direction --> left page
-			    if (mSelectedPageIndex < PAGE_MIDDLE)
-			    {
-			    	tempPage = mPageModel[(NUM_PAGES - 1) - i];
-			    	index = tempPage.getIndex();
-			    	tempPage.setIndex(index - 1);
-			    	setContent((NUM_PAGES - 1) - i);
-			    }
-			    // user swiped to left direction --> right page
-		     	else if (mSelectedPageIndex > PAGE_MIDDLE)
-		     	{
-		     		tempPage = mPageModel[i];
-		     		index = tempPage.getIndex();
-		     		tempPage.setIndex(index + 1);
-		     		setContent(i);
-		     	}
-	    	}
-	    	RestClientHelper.getFixtures(calendar, 0, this);
-	    	mPager.setCurrentItem(PAGE_MIDDLE, false);
-	    	mCurrentIndex = mPageModel[PAGE_MIDDLE].getIndex();
-	    }
-	}
 
-    private void setContent(int index)
-    {
-	  final ScoresFragment model =  mPageModel[index];
-	  if (mSelectedPageIndex < PAGE_MIDDLE) 
-	  {
-		  if(index > PAGE_LEFT)
-		  {
-			  MatchAdapter adapter = mPageModel[index - 1].getMatchAdapter();
-			  model.setMatchAdapter(adapter);
-			  model.setWaiting(mPageModel[index - 1].isWaiting());
-		  }
-		  else
-			  model.setMatchAdapter(null);
-	  }
-	  else if (mSelectedPageIndex > PAGE_MIDDLE)
-	  {
-		  if(index < PAGE_RIGHT)
-		  {
-			  MatchAdapter adapter = mPageModel[index + 1].getMatchAdapter();
-			  model.setMatchAdapter(adapter);
-			  model.setWaiting(mPageModel[index + 1].isWaiting());
-		  }
-		  else
-			  model.setMatchAdapter(null);
-	  }
-	  
+    private void refreshPageModel() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(mPageModel[PAGE_MIDDLE].getDate());
+        mPageModel[PAGE_MIDDLE].setWaiting(true);
+        RestClientHelper.getFixtures(calendar, 0, this);
+    }
+
+    private void setContent(int index) {
+        final ScoresFragment model =  mPageModel[index];
+        if (mSelectedPageIndex < PAGE_MIDDLE) {
+            if(index > PAGE_LEFT) {
+              MatchAdapter adapter = mPageModel[index - 1].getMatchAdapter();
+              model.setMatchAdapter(adapter);
+              model.setWaiting(mPageModel[index - 1].isWaiting());
+            }
+            else
+              model.setMatchAdapter(null);
+        }
+        else if (mSelectedPageIndex > PAGE_MIDDLE) {
+            if(index < PAGE_RIGHT) {
+              MatchAdapter adapter = mPageModel[index + 1].getMatchAdapter();
+              model.setMatchAdapter(adapter);
+              model.setWaiting(mPageModel[index + 1].isWaiting());
+            }
+            else
+              model.setMatchAdapter(null);
+        }
+
 //		  model.setAdapter();
 	}
 
-
-    /* PAGE MODEL INITIALIZATION */
-
-    private void initPageModel(Bundle savedInstanceState)
-    {
-    	for (int i = 0; i < mPageModel.length; i++)
-    	{
-    		ScoresFragment fragment;
-    	    if (savedInstanceState != null)
-    	    {
-    	    	if(mPageModelTags[i] == null)
-    	    		fragment = new ScoresFragment();
-    	    	else
-    	    		fragment = (ScoresFragment)getChildFragmentManager().findFragmentByTag(mPageModelTags[i]);
-    	    } else {
-    	        fragment = new ScoresFragment();
-//	    	        getSupportFragmentManager().beginTransaction().add(fragment, i+"").commit(); 
-    	    }
-    		// initializing the pagemodel with indexes of -1, 0 and 1
-    	    if(fragment != null)
-    	    {
-	    	    mPageModel[i] = fragment;
-	    	    mPageModel[i].setIndex((mCurrentIndex - 2) + i);
-	    	    mPageModel[i].setPosition(i);
-                mPageModel[i].setRefreshListener(refreshListener);
-    	    }
-    	}
+    private void setDisplayFavorites(boolean value) {
+        SharedPreferences settings = getActivity().getSharedPreferences(SportifiedApp.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(SportifiedApp.PREFS_DISPLAY_FAVORITES, value);
+        editor.commit();
     }
 
-    private void initScoresModel()
-    {
-        try
-        {
-            ArrayList<String> datesLoaded = new ArrayList<String>();
-            for (int i = 0; i < mPageModel.length; i++)
-            {
-                if(datesRequested.size() == 0)
-                {
-                    mPageModel[i].setWaiting(false);
-                    mPageModel[i].resultsFetched();
-                } else
-                {
-                    for (int j = 0; j < datesRequested.size(); j++) {
-                        String tempDate = datesRequested.get(j);
-                        String pageDate = DateFormat.format("yyyy-MM-dd", mPageModel[i].getDate()).toString();
-                        if (tempDate.equals(pageDate) && mPageModel[i].isWaiting() == true) {
-                            mPageModel[i].setWaiting(false);
-                            mPageModel[i].resultsFetched();
-                            datesLoaded.add(tempDate);
-                        }
-                    }
-                }
-            }
-            for(int i = 0; i < datesLoaded.size(); i++)
-            {
-                datesRequested.remove(datesLoaded.get(i));
-            }
-            if(!initialized)
-            {
-                for (int j = 0; j < mPageModel.length; j++)
-                {
-                    mPageModel[j].setWaiting(false);
-                    mPageModel[j].resultsFetched();
-                }
-                initialized = true;
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-    
-    
-    public void setJSONObject(JSONObject json)
-    {
-    	try
-    	{
-	    	result = json;
-	    	if(result == null)
-	    		return;
-            if(result.has("icons"))
-            {
+    public void setJSONObject(JSONObject json) {
+        try {
+            result = json;
+            if(result == null)
+                return;
+            if(result.has("icons")) {
                 processIcons();
             } else {
                 String resultInfo = (String) result.get("resultInfo");
@@ -627,24 +547,88 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
                         processResult();
                 }
             }
-    	}
-    	catch(Exception e)
-    	{
-    		e.printStackTrace();
-    	}
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
     public void toggleFavorites()
     {
-        try
-        {
+        try {
             for(int i = PAGE_LEFT; i <= PAGE_RIGHT; i++) {
                 mPageModel[i].toggleFavorites();
             }
-        } catch (Exception e)
-        {
+        }
+        catch (Exception e) {
 
+        }
+    }
+
+    private void toggleFavoritesIcon(boolean displayFavorites, MenuItem item) {
+        if(displayFavorites) {
+            item.setIcon(R.drawable.star_full);
+        } else {
+            item.setIcon(R.drawable.star_empty);
+        }
+    }
+
+    /* PAGE MODEL INITIALIZATION */
+
+    private void initPageModel(Bundle savedInstanceState) {
+    	for (int i = 0; i < mPageModel.length; i++) {
+    		ScoresFragment fragment;
+    	    if (savedInstanceState != null) {
+    	    	if(mPageModelTags[i] == null)
+    	    		fragment = new ScoresFragment();
+    	    	else
+    	    		fragment = (ScoresFragment)getChildFragmentManager().findFragmentByTag(mPageModelTags[i]);
+    	    } else {
+    	        fragment = new ScoresFragment();
+//	    	        getSupportFragmentManager().beginTransaction().add(fragment, i+"").commit(); 
+    	    }
+    		// initializing the pagemodel with indexes of -1, 0 and 1
+    	    if(fragment != null) {
+	    	    mPageModel[i] = fragment;
+	    	    mPageModel[i].setIndex((mCurrentIndex - 2) + i);
+	    	    mPageModel[i].setPosition(i);
+                mPageModel[i].setRefreshListener(refreshListener);
+    	    }
+    	}
+    }
+
+    private void initScoresModel() {
+        try {
+            ArrayList<String> datesLoaded = new ArrayList<String>();
+            for (int i = 0; i < mPageModel.length; i++) {
+                if(datesRequested.size() == 0) {
+                    mPageModel[i].setWaiting(false);
+                    mPageModel[i].resultsFetched();
+                } else {
+                    for (int j = 0; j < datesRequested.size(); j++) {
+                        String tempDate = datesRequested.get(j);
+                        String pageDate = DateFormat.format("yyyy-MM-dd", mPageModel[i].getDate()).toString();
+                        if (tempDate.equals(pageDate) && mPageModel[i].isWaiting() == true) {
+                            mPageModel[i].setWaiting(false);
+                            mPageModel[i].resultsFetched();
+                            datesLoaded.add(tempDate);
+                        }
+                    }
+                }
+            }
+            for(int i = 0; i < datesLoaded.size(); i++) {
+                datesRequested.remove(datesLoaded.get(i));
+            }
+            if(!initialized) {
+                for (int j = 0; j < mPageModel.length; j++) {
+                    mPageModel[j].setWaiting(false);
+                    mPageModel[j].resultsFetched();
+                }
+                initialized = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     

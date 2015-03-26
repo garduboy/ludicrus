@@ -8,8 +8,6 @@ import com.ludicrus.ludicrus.views.login.Login;
 import com.ludicrus.ludicrus.views.MainActivity;
 import com.ludicrus.ludicrus.views.SettingsActivity;
 import com.ludicrus.ludicrus.views.profile.AddFavoriteTeamActivity;
-import com.ludicrus.ludicrus.views.profile.SelectTeamActivity;
-import com.ludicrus.ludicrus.views.sportsTeam.SportsTeamPagerActivity;
 
 public class ActivityHelper
 {
@@ -48,19 +46,6 @@ public class ActivityHelper
     	}
 	}
 	
-	public static final Intent startSelectTeamActivity(Context context)
-	{
-		try
-		{
-			Intent intent = new Intent(context, SelectTeamActivity.class);
-	    	return intent;
-		}
-    	catch(Exception e)
-    	{
-    		return null;
-    	}
-	}
-	
 	public static final Intent startMainActivity(Context context)
 	{
 		try
@@ -86,19 +71,4 @@ public class ActivityHelper
     		return null;
     	}
 	}
-
-    public static final Intent startSoccerTeamActivity(Context context, long teamId, String teamName)
-    {
-        try
-        {
-            Intent intent = new Intent(context, SportsTeamPagerActivity.class);
-            intent.putExtra("sportsTeamId", teamId);
-            intent.putExtra("sportsTeamName", teamName);
-            return intent;
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-    }
 }
