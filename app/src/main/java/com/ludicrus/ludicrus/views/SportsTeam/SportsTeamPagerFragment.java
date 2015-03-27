@@ -104,15 +104,16 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
             public void onGlobalLayout() {
             if(mMinimumHeight > 0 && !mExtraSpaceCalculated) {
                 int headerHeight = getResources().getDimensionPixelSize(R.dimen.header_height);
-                View itemView = mListView.getChildAt(1);
-                int itemHeight = itemView.getHeight();
-                int itemCount = mListView.getAdapter().getCount() - 1;
-                int listViewDividerHeight = mListView.getDividerHeight();
-                int listViewHeight = (itemHeight * itemCount) + (listViewDividerHeight * (itemCount - 1));
-                if (mMinimumHeight > listViewHeight && mListView.getFooterViewsCount() == 0) {
+//                View itemView = mListView.getChildAt(1);
+//                int itemHeight = itemView.getHeight();
+//                int itemCount = mListView.getAdapter().getCount() - 1;
+//                int listViewDividerHeight = mListView.getDividerHeight();
+//                int listViewHeight = (itemHeight * itemCount) + (listViewDividerHeight * (itemCount - 1));
+//                if (mMinimumHeight > listViewHeight && mListView.getFooterViewsCount() == 0) {
+                if (mListView.getFooterViewsCount() == 0) {
                     if(mExtraSpace == null) {
                         mExtraSpace = new View(mListView.getContext());
-                        mExtraSpace.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, mMinimumHeight - listViewHeight));
+                        mExtraSpace.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, mMinimumHeight));// - listViewHeight));
                     }
                     mListView.addFooterView(mExtraSpace);
                 } else {
@@ -137,11 +138,11 @@ public class SportsTeamPagerFragment extends Fragment implements PagerScroller, 
 
             MatchAdapter mMatchAdapter = new MatchAdapter(getActivity().getLayoutInflater());
 
-            List<IMatch> matchList = ScoresPagerFragment.matchList.get("2015-03-14");
-            for (int i = 0; i < matchList.size(); i++) {
-                IMatch match = matchList.get(i);
-                mMatchAdapter.addItem(match);
-            }
+//            List<IMatch> matchList = ScoresPagerFragment.matchList.get("2015-03-14");
+//            for (int i = 0; i < matchList.size(); i++) {
+//                IMatch match = matchList.get(i);
+//                mMatchAdapter.addItem(match);
+//            }
 
             mListView.setAdapter(mMatchAdapter);
         }

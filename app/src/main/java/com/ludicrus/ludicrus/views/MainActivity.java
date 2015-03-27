@@ -226,6 +226,7 @@ public class MainActivity extends BaseActivity implements AppEvent {
     	String[] strings = getResources().getStringArray(R.array.action_list);
 		Intent intent;
 		FragmentTransaction ft;
+        String title = strings[groupPosition];
 		switch(groupPosition) {
 		case EnumNavAction.NAVIGATION_SCORES:
 			//Scores
@@ -272,6 +273,7 @@ public class MainActivity extends BaseActivity implements AppEvent {
                                 ft.replace(R.id.mainContent, mTeam, "");
                                 // Apply changes
                                 ft.commit();
+                                title = "";
                             }
                         }
                         catch (Exception e){
@@ -286,7 +288,7 @@ public class MainActivity extends BaseActivity implements AppEvent {
 		}
 	    // Highlight the selected item, update the title, and close the drawer
 	    mDrawerList.setItemChecked(groupPosition, true);
-	    setTitle(strings[groupPosition]);
+	    setTitle(title);
 	    mDrawerLayout.closeDrawer(mDrawerList);
 	}
 }

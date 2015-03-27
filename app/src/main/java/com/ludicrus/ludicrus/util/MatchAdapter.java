@@ -1,6 +1,9 @@
 package com.ludicrus.ludicrus.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +13,7 @@ import android.graphics.Typeface;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.text.format.DateFormat;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +49,8 @@ public class MatchAdapter extends BaseAdapter
     private BitmapFactory.Options mOptions;
     private Typeface mTypeface;
     private Typeface mScoreTypeface;
+
+    private boolean mDisplayDate = false;
     
 	public MatchAdapter(LayoutInflater inflater)
 	{
@@ -53,6 +59,10 @@ public class MatchAdapter extends BaseAdapter
         mOptions = new BitmapFactory.Options();
 		mOptions.inMutable = true;
 	}
+
+    public void setDisplayDate(boolean displayDate) {
+        mDisplayDate = displayDate;
+    }
 	
 	public void addItem(final IMatch item) {
         mData.add(item);
@@ -145,6 +155,8 @@ public class MatchAdapter extends BaseAdapter
         } else {
             holder = (ViewHolder)convertView.getTag();
         }
+        holder.matchDate = (TextView)convertView.findViewById(R.id.matchDate);
+
         holder.homeTeam.setText(mData.get(position).getHomeTeamName());
         holder.homeTeam.setTypeface(mTypeface);
         holder.visitorTeam.setText(mData.get(position).getAwayTeamName());
@@ -196,7 +208,15 @@ public class MatchAdapter extends BaseAdapter
         paint.setXfermode(null);
         alphaP.setXfermode(null);
         holder.awayTeamLogo.setImageBitmap(result);
-        
+
+        if(mDisplayDate) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date date = sdf.parse(mData.get(position).getDate());
+                holder.matchDate.setText(DateFormat.format("MMM dd, yyyy", date));
+                holder.matchDate.setVisibility(View.VISIBLE);
+            } catch (ParseException pe) {}
+        }
         if(type == IMatch.TYPE_SCHEDULED)
         {
         	holder.matchLocation.setText(mData.get(position).getLocation());
@@ -232,5 +252,6 @@ public class MatchAdapter extends BaseAdapter
         public TextView homeScore;
         public TextView visitorScore;
         public TextView matchInfo;
+        public TextView matchDate;
     }
 }

@@ -75,6 +75,7 @@ public class SportsTeamResultsFragment extends SportsTeamPagerFragment{
         try {
             if(mMatchAdapter == null) {
                 mMatchAdapter = new MatchAdapter(getActivity().getLayoutInflater());
+                mMatchAdapter.setDisplayDate(true);
                 mListView.setAdapter(mMatchAdapter);
             }
 
