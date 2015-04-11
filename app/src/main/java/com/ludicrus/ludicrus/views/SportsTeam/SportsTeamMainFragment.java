@@ -3,6 +3,7 @@ package com.ludicrus.ludicrus.views.sportsTeam;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -24,22 +25,30 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.ludicrus.core.model.interfaces.IOrganization;
 import com.ludicrus.ludicrus.R;
+import com.ludicrus.ludicrus.classes.AndroidOrganization;
 import com.ludicrus.ludicrus.classes.AndroidSportsTeam;
 import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
 import com.ludicrus.ludicrus.helpers.ui.AssetsHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.ludicrus.interfaces.PagerScroller;
 import com.ludicrus.ludicrus.library.view.SlidingTabLayout;
+import com.ludicrus.ludicrus.util.CustomSpinnerAdapter;
 import com.ludicrus.ludicrus.util.EnumTypeface;
 import com.ludicrus.ludicrus.util.OrganizationLogoRenderer;
 import com.ludicrus.ludicrus.views.MainActivity;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by jpgarduno on 3/14/15.
@@ -56,6 +65,7 @@ public class SportsTeamMainFragment extends Fragment implements PagerScroller, V
     private PagerAdapter mPagerAdapter;
     private SlidingTabLayout mSlidingTabLayout;
     private TextView    mTeamName;
+    private Spinner     mTeamNameLeagues;
     private Toolbar     mToolbar;
     private ViewPager   mViewPager;
     private float       mRatio = -1;
@@ -78,18 +88,27 @@ public class SportsTeamMainFragment extends Fragment implements PagerScroller, V
         return Math.max(Math.min(value, min), max);
     }
 
-    private void interpolate(View view1, View view2, float interpolation, boolean scale) {
+    private void interpolate(View view1, View view2, float interpolation, boolean scale, View containerView) {
         getOnScreenRect(mRect1, view1);
         getOnScreenRect(mRect2, view2);
+        if(containerView != null) {
+            RectF container = new RectF();
+            getOnScreenRect(container, containerView);
+            mRect2.left += container.left;
+            mRect2.right += container.right;
+        }
+
+        float xFactor = 1.0F;
 
         if(scale) {
             float scaleX = 1.0F + interpolation * (mRect2.width() / mRect1.width() - 1.0F);
             float scaleY = 1.0F + interpolation * (mRect2.height() / mRect1.height() - 1.0F);
             view1.setScaleX(scaleX);
             view1.setScaleY(scaleY);
+            xFactor += 0.1F;
         }
 
-        float translationX = 0.5F * (interpolation * (mRect2.left + mRect2.right - mRect1.left - mRect1.right));
+        float translationX = xFactor * (interpolation * (mRect2.left - mRect1.left));
         float translationY = 0.5F * (interpolation * (mRect2.top + mRect2.bottom - mRect1.top - mRect1.bottom));
         view1.setTranslationX(translationX);
         view1.setTranslationY(translationY);
@@ -167,9 +186,12 @@ public class SportsTeamMainFragment extends Fragment implements PagerScroller, V
                 mToolbar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 if (mRatio > 0) {
                     ImageView iconView = (ImageView) getActivity().findViewById(R.id.toolbar_logo);
-                    interpolate(mHeaderLogo, iconView, mRatio, true);
-                    TextView toolbarText = (TextView) getActivity().findViewById(R.id.toolbar_team_name);
-                    interpolate(mTeamName, toolbarText, mRatio, false);
+                    interpolate(mHeaderLogo, iconView, mRatio, true, null);
+                    LinearLayout toolbarTitle = (LinearLayout)getActivity().findViewById(R.id.toolbar_title);
+                    View toolbarText = getActivity().findViewById(R.id.toolbar_team_name);
+                    interpolate(mTeamName, toolbarText, mRatio, false, toolbarTitle);
+                    View toolbarLeagues = getActivity().findViewById(R.id.toolbar_team_leagues);
+                    interpolate(mTeamNameLeagues, toolbarLeagues, mRatio, false, toolbarTitle);
                 }
                 //Recalculate list view extra space
                 mPagerAdapter.setAvailableSpace();
@@ -227,7 +249,6 @@ public class SportsTeamMainFragment extends Fragment implements PagerScroller, V
         Bundle bundle = getArguments();
         mTeamName.setText(bundle.getString("sportsTeamName"));
         mTeamName.setTypeface(AssetsHelper.getTypeFace(getActivity(), EnumTypeface.QUICKSAND));
-        mTeamName.setVisibility(View.INVISIBLE);
         int teamId = bundle.getInt("sportsTeamId");
         RestClientHelper.getSportsTeamDetails(this, String.valueOf(teamId));
 
@@ -290,19 +311,34 @@ public class SportsTeamMainFragment extends Fragment implements PagerScroller, V
             float ratio = parallaxImage(mHeaderBackground);
             if(ratio > 0) {
                 ImageView iconView = (ImageView) getActivity().findViewById(R.id.toolbar_logo);
-                interpolate(mHeaderLogo, iconView, sSmoothInterpolator.getInterpolation(ratio), true);
-                TextView toolbarText = (TextView) getActivity().findViewById(R.id.toolbar_team_name);
-                interpolate(mTeamName, toolbarText, sSmoothInterpolator.getInterpolation(ratio), false);
+                interpolate(mHeaderLogo, iconView, sSmoothInterpolator.getInterpolation(ratio), true, null);
+                LinearLayout toolbarTitle = (LinearLayout)getActivity().findViewById(R.id.toolbar_title);
+                View toolbarText = getActivity().findViewById(R.id.toolbar_team_name);
+                interpolate(mTeamName, toolbarText, sSmoothInterpolator.getInterpolation(ratio), false, toolbarTitle);
+                View toolbarLeagues = getActivity().findViewById(R.id.toolbar_team_leagues);
+                interpolate(mTeamNameLeagues, toolbarLeagues, sSmoothInterpolator.getInterpolation(ratio), false, toolbarTitle);
             }
         }
     }
 
-    private void populateTeamInfo(JSONObject sportsTeam) {
+    private void populateTeamInfo() {
         try {
+            JSONObject sportsTeam = (JSONObject)result.get("team");
+            JSONArray teamLeagues = (JSONArray)result.get("teamLeagues");
+
             IOrganization organization = new AndroidSportsTeam(sportsTeam);
             Bitmap teamLogo = OrganizationLogoRenderer.getMaskedOrganizationLogo(organization.getLogo(), getActivity());
             mHeaderLogo.setImageBitmap(teamLogo);
-            mTeamName.setVisibility(View.VISIBLE);
+            mTeamNameLeagues = (Spinner)getActivity().findViewById(R.id.sports_team_spinner);
+            ArrayList<CharSequence> list = new ArrayList<CharSequence>();
+            for(int i = 0; i < teamLeagues.length(); i++) {
+                JSONObject obj = (JSONObject) teamLeagues.get(i);
+                organization = new AndroidOrganization(obj);
+                list.add(organization.getName());
+            }
+            CustomSpinnerAdapter dataAdapter = new CustomSpinnerAdapter(getActivity(), R.layout.league_spinner, list);
+            mTeamNameLeagues.setAdapter(dataAdapter);
+            mTeamNameLeagues.getBackground().setColorFilter(getResources().getColor(R.color.text_font), PorterDuff.Mode.SRC_ATOP);
         } catch (Exception e) {
 
         }
@@ -319,8 +355,7 @@ public class SportsTeamMainFragment extends Fragment implements PagerScroller, V
             String resultInfo = (String)result.get("resultInfo");
             if(resultInfo.equals("teamDetails"))
             {
-                JSONObject sportsTeam = (JSONObject)result.get("team");
-                populateTeamInfo(sportsTeam);
+                populateTeamInfo();
                 //Populate Results, Calendar, Squad
             }
         }
