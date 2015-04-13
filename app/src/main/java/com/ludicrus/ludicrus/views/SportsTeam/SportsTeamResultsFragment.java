@@ -142,7 +142,7 @@ public class SportsTeamResultsFragment extends SportsTeamPagerFragment{
         View placeHolderView = inflater.inflate(R.layout.sports_team_header, mListView, false);
         mListView.addHeaderView(placeHolderView);
 
-
+        final AbsListView.OnScrollListener listener = this;
         mListView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -165,11 +165,13 @@ public class SportsTeamResultsFragment extends SportsTeamPagerFragment{
                             mListView.removeFooterView(mExtraSpace);
                         }
                     }
+                    //Set the scroll listener until the list has been populated
+                    mListView.setOnScrollListener(listener);
+
                     mExtraSpaceCalculated = true;
                 }
             }
         });
-        mListView.setOnScrollListener(this);
         return mListView;
     }
 
