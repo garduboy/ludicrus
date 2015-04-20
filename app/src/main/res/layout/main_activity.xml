@@ -24,7 +24,28 @@
             android:minHeight="?attr/actionBarSize"
             android:background="@color/background_main_dark"
             app:theme="@style/LudicrusToolbarDark"
-            android:layout_gravity="fill_horizontal"/>
+            android:layout_gravity="fill_horizontal">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginLeft="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/toolbar_title_top"
+                    android:textSize="8pt"
+                    android:textColor="@color/text_font"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    />
+                <Spinner
+                    android:id="@+id/toolbar_title_spinner"
+                    android:layout_marginTop="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
 
         <!-- The main content view -->
         <FrameLayout

@@ -80,7 +80,6 @@ public class MainActivity extends BaseActivity implements AppEvent {
         RestClientHelper.getUserFavTeams(user.getIdUser(), this);
 
         setContentView(R.layout.main_activity);
-        mTitle = getString(R.string.title_activity_scores);
 
         mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
         setSupportActionBar(mainToolbar);
@@ -118,13 +117,15 @@ public class MainActivity extends BaseActivity implements AppEvent {
         getSupportActionBar().setHomeButtonEnabled(true);
         
         //Dynamically add the scores fragment
+        mTitle = getString(R.string.matches);
+
 		FragmentTransaction ft;
 		scores = new ScoresPagerFragment();
 	    ft = getSupportFragmentManager().beginTransaction();
 	    //Should be add, let's find out where do we need to remove it when the configuration changes
 	    ft.replace(R.id.mainContent, scores, mTitle.toString());
 	    ft.commit();
-        setTitle(mTitle);
+        setTitle("");
 	}
 
 	@Override
@@ -167,7 +168,7 @@ public class MainActivity extends BaseActivity implements AppEvent {
 			{
 				String navItem = navItems[i];
 				List<Object> subItems = new ArrayList<Object>();
-				if(navItem.equals(getString(R.string.title_activity_myTeams)))
+				if(i == EnumNavAction.NAVIGATION_FAVORITES)
 				{
 					if(favTeams.size() > 0)
 						subItems = new ArrayList<Object>();
@@ -239,6 +240,8 @@ public class MainActivity extends BaseActivity implements AppEvent {
 		    ft.replace(R.id.mainContent, scores, strings[groupPosition]);
 		    // Apply changes
 		    ft.commit();
+            //TODO
+            title = "";
 			break;
 		case EnumNavAction.NAVIGATION_PROFILE:
 			//Profile
@@ -249,7 +252,7 @@ public class MainActivity extends BaseActivity implements AppEvent {
 		    // Apply changes
 		    ft.commit();
 			break;
-		case EnumNavAction.NAVIGATION_MY_TEAMS:
+		case EnumNavAction.NAVIGATION_FAVORITES:
 			//My Teams
             if(childPosition >= 0) {
                 ArrayList<IOrganization> favTeams = FavoriteTeamHelper.getFavoriteTeams();

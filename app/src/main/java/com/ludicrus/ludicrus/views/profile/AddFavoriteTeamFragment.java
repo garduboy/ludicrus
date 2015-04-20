@@ -245,9 +245,6 @@ public class AddFavoriteTeamFragment extends Fragment implements EventListener{
                     setOrganizationAdapter(adapter, itemType);
                 }
             }
-			
-
-			
 		}
 		catch(Exception e)
 		{

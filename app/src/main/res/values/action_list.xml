@@ -2,7 +2,7 @@
 <resources>
     <string-array name="action_list">
         <item>@string/title_activity_profile</item>
-        <item>@string/title_activity_scores</item>
-        <item>@string/title_activity_myTeams</item>
+        <item>@string/matches</item>
+        <item>@string/favorites</item>
     </string-array>
 </resources>

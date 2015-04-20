@@ -19,6 +19,7 @@ public class SportifiedApp extends Application{
 
 	public static final String PREFS_NAME = "SportPreferences";
     public static final String PREFS_DISPLAY_FAVORITES = "SportDisplayFavorites";
+    public static final String PREFS_DISPLAY_LEAGUE = "SportDisplayLeague";
     public static final String PREFS_FAVORITE_TEAMS = "SportFavoriteTeams";
 	
 	private boolean isUserLogged = false;

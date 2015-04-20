@@ -36,25 +36,15 @@ import com.ludicrus.ludicrus.util.MatchAdapter;
 public class ScoresFragment extends Fragment
 {
 	private Date date;
-	
 	private int index;
-	
 	private ListView mListView;
-	
 	private MatchAdapter mMatchAdapter;
-	
 	private int position;
-	
 	private ProgressBar mProgress;
-	
 	private boolean mWaiting;
-	
 	private TextView text;
-
     private SwipeRefreshLayout mSwipeLayout;
-
     private SwipeRefreshLayout.OnRefreshListener mRefreshListener;
-
 
 	public ScoresFragment()
 	{
@@ -93,7 +83,7 @@ public class ScoresFragment extends Fragment
         {
         	mProgress = (ProgressBar)rootView.findViewById(R.id.loadingFragment);
         	mProgress.setVisibility(View.GONE);
-        	
+
         	text = (TextView)rootView.findViewById(R.id.date);
         	//TODO remove
         	String pageDate = DateFormat.format("yyyy-MM-dd", this.date).toString();
@@ -156,10 +146,11 @@ public class ScoresFragment extends Fragment
 
             SharedPreferences settings = getActivity().getSharedPreferences(SportifiedApp.PREFS_NAME, Context.MODE_PRIVATE);
             boolean displayFavorites = settings.getBoolean(SportifiedApp.PREFS_DISPLAY_FAVORITES, true);
+            String league = settings.getString(SportifiedApp.PREFS_DISPLAY_LEAGUE, getString(R.string.all));
 
             for (int i = 0; i < matchList.size(); i++) {
                 IMatch match = matchList.get(i);
-                if (pageDate.equals(match.getDate()))
+                if (pageDate.equals(match.getDate()) && (league.equals(getString(R.string.all)) || league.equals(match.getTournamentName())))
                     if(displayFavorites)
                     {
                         //TODO create sports enumeration and change value in Core/SoccerMatch
@@ -221,6 +212,10 @@ public class ScoresFragment extends Fragment
 		this.index = index;
 		setDate();
 	}
+
+    public void setDisplayLeague() {
+        loadAdapter();
+    }
 
 	public int getPosition() {
 		return position;

@@ -3,6 +3,7 @@
 
     <string name="app_id">246770775471647</string>
     <string name="add_fav_team">Add Favorite Team</string>
+    <string name="all">All</string>
     <string name="app_name">Ludicrus</string>
     <string name="away_team">Away Team</string>
     <string name="button_login">Login</string>
@@ -11,12 +12,14 @@
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="favorites">Favorites</string>
     <string name="final_caps">FINAL</string>
     <string name="finished">Finished</string>
     <string name="hello_world">Hello world!</string>
     <string name="home_team">Home Team</string>
     <string name="match_location">Location</string>
     <string name="match_time">Time</string>
+    <string name="matches">Matches</string>
     <string name="menu_settings">Settings</string>
     <string name="organization">Organization</string>
     <string name="password">password</string>

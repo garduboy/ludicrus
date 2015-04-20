@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -27,6 +28,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,17 +37,25 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.DatePicker;
+import android.widget.Spinner;
+import android.widget.TextView;
 
+import com.ludicrus.core.model.interfaces.IOrganization;
 import com.ludicrus.ludicrus.R;
 import com.ludicrus.ludicrus.SportifiedApp;
+import com.ludicrus.ludicrus.classes.AndroidOrganization;
 import com.ludicrus.ludicrus.classes.AndroidSoccerMatch;
 import com.ludicrus.ludicrus.classes.ScoresChangeListener;
 import com.ludicrus.ludicrus.helpers.ActivityHelper;
 import com.ludicrus.ludicrus.helpers.network.RestClientHelper;
+import com.ludicrus.ludicrus.helpers.ui.AssetsHelper;
 import com.ludicrus.ludicrus.interfaces.EventListener;
 import com.ludicrus.core.model.interfaces.IMatch;
+import com.ludicrus.ludicrus.util.CustomSpinnerAdapter;
 import com.ludicrus.ludicrus.util.EnumNavAction;
+import com.ludicrus.ludicrus.util.EnumTypeface;
 import com.ludicrus.ludicrus.util.MatchAdapter;
 import com.viewpagerindicator.TitlePageIndicator;
 
@@ -84,6 +95,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
     private MediaPlayer _shootMP = null;
 
     private ArrayList<String> datesRequested = new ArrayList<String>();
+    private Spinner mToolbarSpinner;
     
     
     // we save each page in a model
@@ -185,6 +197,13 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
         boolean favorites = settings.getBoolean(SportifiedApp.PREFS_DISPLAY_FAVORITES, true);
 
         return favorites;
+    }
+
+    private String getDisplayLeague() {
+        SharedPreferences settings = getActivity().getSharedPreferences(SportifiedApp.PREFS_NAME, Context.MODE_PRIVATE);
+        String league = settings.getString(SportifiedApp.PREFS_DISPLAY_LEAGUE, getString(R.string.all));
+
+        return league;
     }
 
 	private void loadDate(Calendar calendar, int difference) {
@@ -326,6 +345,12 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 
         initPageModel(savedInstanceState);
 
+        Typeface lobsterTypeFace = AssetsHelper.getTypeFace(getActivity(), EnumTypeface.LOBSTER);
+        TextView toolbarText = (TextView) getActivity().findViewById(R.id.toolbar_title_top);
+        toolbarText.setText(getString(R.string.matches));
+        toolbarText.setTypeface(lobsterTypeFace);
+        mToolbarSpinner = (Spinner) getActivity().findViewById(R.id.toolbar_title_spinner);
+
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) getView().findViewById(R.id.pager);
         FragmentManager manager = getChildFragmentManager();
@@ -346,6 +371,7 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
         calendar.setTime(mPageModel[PAGE_MIDDLE].getDate());
         calendar.add(Calendar.DATE, -1);
         RestClientHelper.getFixtures(calendar, 2, this);
+        RestClientHelper.getAllLeagues(this);
         handler.postDelayed(refreshRate, delay);
     }
 
@@ -433,6 +459,39 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
             mPageModel[PAGE_MIDDLE].loadAdapter();
         }
         catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void processLeagues() {
+        try {
+            JSONArray leagues = (JSONArray) result.get("itemList");
+
+            IOrganization organization;
+            ArrayList<CharSequence> list = new ArrayList<CharSequence>();
+            for(int i = 0; i < leagues.length(); i++) {
+                JSONObject obj = (JSONObject) leagues.get(i);
+                organization = new AndroidOrganization(obj);
+                list.add(organization.getName());
+            }
+            CustomSpinnerAdapter dataAdapter = new CustomSpinnerAdapter(getActivity(), R.layout.league_spinner, list);
+            mToolbarSpinner.setAdapter(dataAdapter);
+            mToolbarSpinner.getBackground().setColorFilter(getResources().getColor(R.color.text_font), PorterDuff.Mode.SRC_ATOP);
+            int defaultPosition = dataAdapter.getPosition(getDisplayLeague());
+            mToolbarSpinner.setSelection(defaultPosition);
+            mToolbarSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    setLeague(((TextView)view).getText().toString());
+                    selectLeague();
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }
@@ -543,8 +602,12 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
                     if (resultInfo.equals("liveScores")) {
 //                        processLiveScores();
                     }
-                    else
+                    else if (resultInfo.equals("leagues")) {
+                        processLeagues();
+
+                    } else {
                         processResult();
+                    }
                 }
             }
         }
@@ -554,8 +617,20 @@ public class ScoresPagerFragment extends Fragment implements EventListener{
 
     }
 
-    public void toggleFavorites()
-    {
+    private void setLeague(String value) {
+        SharedPreferences settings = getActivity().getSharedPreferences(SportifiedApp.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(SportifiedApp.PREFS_DISPLAY_LEAGUE, value);
+        editor.commit();
+    }
+
+    private void selectLeague() {
+        for(int i = PAGE_LEFT; i <= PAGE_RIGHT; i++) {
+            mPageModel[i].setDisplayLeague();
+        }
+    }
+
+    public void toggleFavorites() {
         try {
             for(int i = PAGE_LEFT; i <= PAGE_RIGHT; i++) {
                 mPageModel[i].toggleFavorites();

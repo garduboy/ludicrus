@@ -83,7 +83,14 @@ public class RestClientHelper
 		restClient.setListener(listener);
 		restClient.execute();
 	}
-	
+
+    public static final void getAllLeagues(EventListener listener) {
+        RestClient restClient = new RestClient(server + "/loadLeagues.do", 0);
+        restClient.AddParam("action", "loadLeagues");
+        restClient.setListener(listener);
+        restClient.execute();
+    }
+
 	public static final void getConfederationList(EventListener listener)
 	{
 		RestClient restClient = new RestClient(server + "/loadConfederations.do", 0);

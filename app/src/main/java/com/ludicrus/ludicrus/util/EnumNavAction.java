@@ -7,5 +7,5 @@ package com.ludicrus.ludicrus.util;
 public class EnumNavAction {
     public static final int NAVIGATION_PROFILE = 0;
     public static final int NAVIGATION_SCORES = 1;
-    public static final int NAVIGATION_MY_TEAMS = 2;
+    public static final int NAVIGATION_FAVORITES = 2;
 }
